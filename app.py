@@ -1,36 +1,23 @@
 from groq import Groq
 import os
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 
-# =========================
-# LOAD ENV VARIABLES
-# =========================
 load_dotenv()
 
-# =========================
-# FLASK APP SETUP
-# =========================
-app = Flask(__name__, static_folder='.')
+app = Flask(__name__, static_folder='.', static_url_path='')
+
 CORS(app, supports_credentials=True)
 
-# =========================
-# GROQ CLIENT
-# =========================
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
-# =========================
-# HOMEPAGE ROUTE
-# =========================
-
 
 @app.route('/')
 def home():
-    return send_from_directory('.', 'index.html')
-
+    return app.send_static_file('index.html')
 # =========================
 # TEST ROUTE
 # =========================
