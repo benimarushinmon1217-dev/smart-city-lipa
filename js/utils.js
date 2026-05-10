@@ -69,7 +69,7 @@ function showInfo(feature, backendData = null) {
 ========================= */
 async function fetchRiskAnalysis(data) {
   try {
-    const res = await fetch("http://localhost:5000/analyze-risk", {
+    const res = await fetch("/analyze-risk", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
@@ -132,7 +132,7 @@ async function askAI() {
   });
 
   try {
-    const response = await fetch("http://127.0.0.1:5000/chatbot", {
+    const response = await fetch("/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
 
