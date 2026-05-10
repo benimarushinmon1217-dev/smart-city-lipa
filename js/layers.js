@@ -31,7 +31,7 @@ function normalizeName(name) {
    ICONS
 ========================= */
 const userLocationIcon = L.icon({
-  iconUrl: "images/location.png",
+  iconUrl: "/images/location.png",
   iconSize: [40, 40],
   iconAnchor: [20, 40],
   popupAnchor: [0, -35]
@@ -39,11 +39,11 @@ const userLocationIcon = L.icon({
 window.userLocationIcon = userLocationIcon;
 
 function getFacilityIcon(type) {
-  let iconUrl = "images/evacuation.png";
+  let iconUrl = "/images/evacuation.png";
 
-  if (type === "school") iconUrl = "images/school.png";
-  else if (type === "church") iconUrl = "images/church.png";
-  else if (type === "government") iconUrl = "images/government.png";
+  if (type === "school") iconUrl = "/images/school.png";
+  else if (type === "church") iconUrl = "/images/church.png";
+  else if (type === "government") iconUrl = "/images/government.png";
 
   return L.icon({
     iconUrl,
@@ -54,8 +54,8 @@ function getFacilityIcon(type) {
 }
 
 function getHealthIcon(type) {
-  let iconUrl = "images/hospital.png";
-  if (type === "clinic") iconUrl = "images/clinic.png";
+  let iconUrl = "/images/hospital.png";
+  if (type === "clinic") iconUrl = "/images/clinic.png";
 
   return L.icon({
     iconUrl,
@@ -286,7 +286,7 @@ function highlightLayer(layer) {
 /* =========================
    LOAD BARANGAYS
 ========================= */
-fetch("data/lipa_barangays_risk_fixed.geojson")
+fetch("/data/lipa_barangays_risk_fixed.geojson")
   .then(r => r.json())
   .then(data => {
 
@@ -436,10 +436,10 @@ fetch("data/lipa_barangays_risk_fixed.geojson")
           const formattedName = normalizeName(rawName);
           const img = document.getElementById("placeImage");
 
-          img.src = `images/${formattedName.toLowerCase()}.jpg`;
+          img.src = `/images/${formattedName.toLowerCase()}.jpg`;
           img.onerror = () => {
             img.onerror = null;
-            img.src = "images/default.jpg";
+            img.src = "/images/default.jpg";
           };
 
           const elev = f.properties.mean_elev || 0;
@@ -473,7 +473,7 @@ fetch("data/lipa_barangays_risk_fixed.geojson")
    LOAD POBLACION
 ========================= */
 function loadPoblacion() {
-  fetch("data/poblacion_barangays.geojson")
+  fetch("/data/poblacion_barangays.geojson")
     .then(r => r.json())
     .then(data => {
 

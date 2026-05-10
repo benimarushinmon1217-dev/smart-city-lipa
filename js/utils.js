@@ -325,7 +325,7 @@ function focusAutoBarangay(layer, lat, lng) {
   const formattedName = normalizeName(rawName);
 
   const img = document.getElementById("placeImage");
-  img.src = `images/${formattedName}.jpg`;
+  img.src = `/images/${formattedName}.jpg`;
   img.onerror = () => {
     img.src = "https://placehold.co/300x150";
   };
@@ -411,10 +411,10 @@ function selectBarangay(layer, latlngOverride = null, label = "Selected location
   const formattedName = normalizeName(name);
 
   const img = document.getElementById("placeImage");
-  img.src = `images/${formattedName}.jpg`;
+  img.src = `/images/${formattedName}.jpg`;
   img.onerror = () => {
     img.onerror = null; // stop infinite loop
-    img.src = "images/default.jpg";
+    img.src = "/images/default.jpg";
   };
 
   // 🔥 SAFE SCORE (CRITICAL FIX)

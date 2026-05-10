@@ -17,7 +17,7 @@ function toggleSidebar() {
 /* =========================
    LOAD BARANGAY LIST
 ========================= */
-fetch("data/lipa_barangays_risk_fixed.geojson")
+fetch("/data/lipa_barangays_risk_fixed.geojson")
   .then(r => r.json())
   .then(data => {
     const select = document.getElementById("barangaySelect");
