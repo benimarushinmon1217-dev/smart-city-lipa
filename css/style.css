@@ -1,0 +1,649 @@
+* {
+  box-sizing: border-box;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #0b1220;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+#app {
+  display: flex;
+  height: 100vh;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+#sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  background: #0f172a;
+  color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 2;
+}
+
+/* =========================
+   MAP
+========================= */
+#map {
+  flex: 1;
+  z-index: 1;
+}
+
+/* =========================
+   TEXT
+========================= */
+h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+h3 {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #94a3b8;
+}
+
+.subtitle {
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin: 6px 0;
+  color: #cbd5f5;
+}
+
+/* =========================
+   HEADER
+========================= */
+.place-header {
+  position: relative;
+}
+
+.place-header img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
+.place-title {
+  padding: 12px;
+  background: #0f172a;
+}
+
+.place-title h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* =========================
+   SECTIONS
+========================= */
+.info-section,
+.layers-section,
+.chat-section {
+  padding: 12px;
+}
+
+/* =========================
+   INFO CARD
+========================= */
+#infoBox {
+  background: #1b2844;
+  border-radius: 10px;
+  padding: 14px;
+  min-height: 120px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 13px;
+}
+
+/* =========================
+   CHAT
+========================= */
+.chat-section {
+  display: flex;
+  flex-direction: column;
+  height: 50vh;
+  margin-top: 10px;
+}
+
+#chatBox {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  background: #1b2844;
+  border-radius: 10px;
+  margin-bottom: 8px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-user {
+  align-self: flex-end;
+  background: #1d4ed8;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 15px 15px 0 15px;
+  max-width: 80%;
+  font-size: 13px;
+}
+
+.chat-ai {
+  align-self: flex-start;
+  background: #006aff;
+  color: #e5e7eb;
+  padding: 8px 12px;
+  border-radius: 15px 15px 15px 0;
+  max-width: 80%;
+  font-size: 13px;
+}
+
+/* INPUT */
+.chat-input-container {
+  display: flex;
+  gap: 6px;
+}
+
+#chatInput {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  background: #020617;
+  color: #e5e7eb;
+}
+
+.chat-input-container button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.chat-input-container button:hover {
+  background: #2563eb;
+}
+
+/* =========================
+   LOGIN OVERLAY (UPGRADED)
+========================= */
+#loginOverlay {
+  position: fixed;
+  inset: 0;
+
+  background: linear-gradient(rgba(11, 18, 32, 0.85),
+      rgba(11, 18, 32, 0.95));
+
+  backdrop-filter: blur(6px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+}
+
+/* CARD */
+.login-box {
+  width: 360px;
+  padding: 30px;
+
+  border-radius: 16px;
+
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+
+  text-align: center;
+  color: #e5e7eb;
+}
+
+/* HEADER */
+.login-header h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.login-header p {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* BODY */
+.login-body {
+  margin-top: 20px;
+}
+
+.login-body label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #cbd5f5;
+}
+
+/* SELECT */
+.login-body select {
+  width: 100%;
+  padding: 10px;
+
+  border-radius: 10px;
+  border: none;
+  outline: none;
+
+  background: #020617;
+  color: white;
+
+  margin-bottom: 15px;
+}
+
+/* BUTTON */
+.login-body button {
+  width: 100%;
+  padding: 10px;
+
+  border-radius: 10px;
+  border: none;
+
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  color: white;
+
+  font-weight: 500;
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.login-body button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+/* =========================
+   RIGHT PANEL (🔥 FIXED)
+========================= */
+#mapRightPanel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  z-index: 1000;
+}
+
+/* LEGEND (NO MORE ABSOLUTE) */
+#mapLegend {
+  width: 230px;
+
+  background: #0f172a;
+  color: #e5e7eb;
+  padding: 14px;
+  border-radius: 14px;
+
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+
+  font-size: 12px;
+}
+
+#mapLegend h4 {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+#mapLegend .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legend-color.red {
+  background: #dc2626;
+}
+
+.legend-color.orange {
+  background: #f97316;
+}
+
+.legend-color.green {
+  background: #22c55e;
+}
+
+.legend-color.blue {
+  background: #3b82f6;
+}
+
+.legend-img img {
+  width: 18px;
+  height: 18px;
+}
+
+/* ACTIONS (NO MORE ABSOLUTE) */
+#mapActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* BUTTON */
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px;
+  border-radius: 12px;
+
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: 0.2s;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* COLORS */
+.action-btn.hotline {
+  background: #dc2626;
+}
+
+.action-btn.shelter {
+  background: #1d4ed8;
+}
+
+.action-btn.route {
+  background: #2563eb;
+}
+
+.action-btn.report {
+  background: #9333ea;
+}
+
+/* =========================
+   MODAL
+========================= */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #0f172a;
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+  width: 300px;
+}
+
+.modal-content ul {
+  padding-left: 15px;
+}
+
+.modal-content li {
+  margin: 6px 0;
+}
+
+.modal-content button {
+  margin-top: 10px;
+  padding: 8px;
+  width: 100%;
+  background: #1d4ed8;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+.mode-btn {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+
+  border: none;
+  border-radius: 10px;
+
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.mode-btn.primary {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  color: white;
+}
+
+.mode-btn.secondary {
+  background: #1f2937;
+  color: #e5e7eb;
+}
+
+.mode-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* =========================
+   MAP INTERACTION
+========================= */
+.leaflet-interactive {
+  transition: fill-opacity 0.2s, stroke-width 0.2s;
+}
+
+.hotline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.hotline-item {
+  background: #1b2844;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.hotline-item a {
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+.hotline-item a:hover {
+  text-decoration: underline;
+}
+
+.hotline-item.emergency {
+  background: #dc2626;
+  color: white;
+
+  /* =========================
+   MAP INTERACTION OVERRIDES
+========================= */
+  #map {
+    z-index: 1;
+  }
+
+  #mapRightPanel {
+    z-index: 9999;
+    pointer-events: auto;
+  }
+
+  #mapActions {
+    pointer-events: auto;
+  }
+
+  .action-btn {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .leaflet-routing-container {
+    pointer-events: none;
+  }
+
+  .leaflet-routing-alternatives-container {
+    pointer-events: none;
+  }
+
+  /* =========================
+   🌬 WIND CONTAINER
+========================= */
+  .wind-container {
+    margin-top: 16px;
+  }
+
+  /* Label */
+  .wind-container label {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  /* =========================
+   🌬 WIND SELECT (UNIFORM)
+========================= */
+  #windSelect {
+    width: 100%;
+    padding: 10px 14px;
+
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    background-color: #0f172a;
+    color: #e2e8f0;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    appearance: none;
+
+    transition: all 0.2s ease;
+  }
+
+  /* Hover */
+  #windSelect:hover {
+    border-color: #3b82f6;
+  }
+
+  /* Focus */
+  #windSelect:focus {
+    outline: none;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.25);
+  }
+
+  /* Arrow */
+  #windSelect {
+    background-image:
+      url("data:image/svg+xml;utf8,<svg fill='%23cbd5f5' height='20' viewBox='0 0 24 24' width='20'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+  }
+
+  #windSelect option {
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+
+  /* =========================
+   🧱 SECTION DIVIDERS
+========================= */
+  .info-section,
+  .layers-section,
+  .chat-section {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    margin-bottom: 14px;
+
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  #sidebar {
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .place-header img {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  #infoBox {
+    background: linear-gradient(145deg, #1b2844, #16213a);
+  }
+
+  .layers-section {
+    padding-bottom: 16px;
+  }
+
+  .wind-container {
+    margin-top: 18px;
+  }
+
+  .chat-section {
+    height: 48vh;
+  }
+
+  #chatBox {
+    padding: 12px;
+  }
+
+  .chat-input-container {
+    background: #020617;
+    padding: 6px;
+    border-radius: 10px;
+  }
+
+  /* Remove weird offset */
+  .wind-container {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 14px;
+    margin: auto;
+    /* was 16px → too big */
+  }

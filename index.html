@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Smart City Lipa</title> <!-- ✅ Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"> <!-- ✅ Your styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <!-- ✅ Leaflet JS (MUST COME FIRST) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> <!-- ✅ Turf -->
+  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script> <!-- ✅ Routing Machine (AFTER Leaflet) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+</head>
+
+<body>
+
+  <!-- 🔐 LOGIN -->
+  <div id="loginOverlay">
+    <div class="login-box">
+      <div class="login-header">
+        <h1>Smart City Lipa</h1>
+        <p>Flood Risk Assessment System</p>
+      </div>
+
+      <div id="modeSelection">
+        <button class="mode-btn primary" onclick="useMyLocation()">
+          📍 Use My Location
+        </button>
+
+        <button class="mode-btn secondary" onclick="showManualSelection()">
+          🏙️ Select Barangay Manually
+        </button>
+      </div>
+
+      <div id="manualSection" style="display:none; margin-top:15px;">
+        <select id="barangaySelect" aria-label="Select your barangay">
+          <option value="">-- Select Barangay --</option>
+        </select>
+
+        <button onclick="enterSystem()" style="margin-top:10px;" aria-label="Enter the system with selected barangay">
+          Enter System
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔥 IMPORTANT FIX -->
+  <div id="app">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <div class="place-header">
+        <img id="placeImage" src="images/default.jpg" />
+        <div class="place-title">
+          <h2 id="placeName">Smart City Lipa</h2>
+          <p class="subtitle">Urban Intelligence Platform</p>
+        </div>
+      </div>
+
+      <section class="info-section">
+        <h3>INSIGHTS</h3>
+        <div id="infoBox" class="info-card">
+          Click any feature on the map.
+        </div>
+      </section>
+
+      <section class="layers-section">
+        <h3>LAYERS</h3>
+        <label><input type="checkbox" id="barangayLayer" checked> Barangays</label>
+        <label><input type="checkbox" id="floodLayer" checked> Flood Risk</label>
+        <label><input type="checkbox" id="ashfallLayer"> Ashfall Risk</label>
+        <label><input type="checkbox" id="poblacionLayer" checked> Poblacion Areas</label>
+        <label><input type="checkbox" id="facilityLayer" checked> Evacuation Facilities</label>
+        <label><input type="checkbox" id="healthLayer" checked> Healthcare Facilities</label>
+      </section>
+
+      <div class="layers-section"> <!-- reuse same class -->
+        <h3>WIND DIRECTION</h3>
+
+        <div class="wind-container">
+          <select id="windSelect" onchange="changeWind(this.value)">
+            <option value="North">North</option>
+            <option value="North East">Northeast</option>
+            <option value="East">East</option>
+            <option value="South East">Southeast</option>
+            <option value="South">South</option>
+            <option value="South West">Southwest</option>
+            <option value="West">West</option>
+            <option value="North West">Northwest</option>
+          </select>
+        </div>
+      </div>
+
+      <section class="chat-section">
+        <h3>AI ASSISTANT</h3>
+        <div id="chatBox"></div>
+        <div class="chat-input-container">
+          <input id="chatInput" type="text" placeholder="Ask about this area..." aria-label="Chat input" />
+          <button onclick="askAI()" aria-label="Send message">➤</button>
+        </div>
+      </section>
+    </aside>
+
+    <!-- MAP -->
+    <div id="map"></div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="mapRightPanel">
+    <div id="mapLegend">
+      <h4>FLOOD RISK LEGEND</h4>
+
+      <div class="legend-item">
+        <span class="legend-color red"></span>
+        <div><strong>Red</strong><br><small>Evacuate immediately</small></div>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-color orange"></span>
+        <div><strong>Orange</strong><br><small>Stay alert</small></div>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-color green"></span>
+        <div><strong>Green</strong><br><small>No significant risk</small></div>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-color blue"></span>
+        <div>River / waterways</div>
+      </div>
+
+      <hr>
+
+      <div class="legend-item">
+        <span class="legend-icon">📍</span>
+        <div>Your Location</div>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-img">
+          <img src="images/evacuation.png" alt="Evacuation">
+        </span>
+        <div>Evacuation</div>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-icon">🏥</span>
+        <div>Healthcare</div>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-icon">🏫</span>
+        <div>Schools</div>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-icon">⛪</span>
+        <div>Church</div>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-icon">🏛️</span>
+        <div>City Hall</div>
+      </div>
+
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div id="mapActions">
+
+      <div class="action-btn hotline" onclick="openHotlines()">
+        <span>📞</span>
+        <div>
+          <strong>Emergency Hotlines</strong><br>
+          <small>911</small>
+        </div>
+      </div>
+
+      <div class="action-btn shelter" onclick="findNearestShelter()">
+        <span>🏠</span>
+        <div>
+          <strong>Find Nearest Shelter</strong><br>
+          <small>Find now</small>
+        </div>
+      </div>
+
+      <div class="action-btn route" onclick="findBestShelterByRoute()">
+        <span>📍</span>
+        <div>
+          <strong>Evacuation Routes</strong><br>
+          <small>View routes</small>
+        </div>
+      </div>
+
+      <div class="action-btn route" onclick="recomputeRoute()">
+        <span>🔄</span>
+        <div>
+          <strong>Recompute Route</strong><br>
+          <small>Update path</small>
+        </div>
+      </div>
+
+      <div class="action-btn report" onclick="openReport()">
+        <span>📢</span>
+        <div>
+          <strong>Report Flood</strong><br>
+          <small>Submit report</small>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- 📞 HOTLINES MODAL -->
+  <div id="hotlineModal" class="modal">
+    <div class="modal-content">
+      <h3>🚨 Emergency Hotlines</h3>
+
+      <div class="hotline-list">
+
+        <div class="hotline-item">
+          <strong>Lipa CDRRMO</strong><br>
+          📞 <a href="tel:09154635005">0915-463-5005</a><br>
+          📞 <a href="tel:0437560127">(043) 756-0127</a><br>
+          📞 <a href="tel:0437575164">(043) 757-5164</a>
+        </div>
+
+        <div class="hotline-item">
+          <strong>Bureau of Fire Protection (BFP)</strong><br>
+          📞 <a href="tel:09275758065">0927-575-8065</a><br>
+          📞 <a href="tel:0437574618">(043) 757-4618</a>
+        </div>
+
+        <div class="hotline-item">
+          <strong>Philippine National Police (PNP)</strong><br>
+          📞 <a href="tel:09777449692">0977-744-9692</a><br>
+          📞 <a href="tel:0437023832">(043) 702-3832</a>
+        </div>
+
+        <div class="hotline-item">
+          <strong>Traffic Management Division (TMD)</strong><br>
+          📞 <a href="tel:0437026454">(043) 702-6454</a><br>
+          📞 <a href="tel:0434049152">(043) 404-9152</a>
+        </div>
+
+        <div class="hotline-item">
+          <strong>Red Cross Lipa</strong><br>
+          📞 <a href="tel:09989570443">0998-957-0443</a><br>
+          📞 <a href="tel:0437400768">(043) 740-0768</a>
+        </div>
+
+        <div class="hotline-item">
+          <strong>Lipa District Hospital</strong><br>
+          📞 <a href="tel:0437561313">(043) 756-1313</a>
+        </div>
+
+        <div class="hotline-item emergency">
+          <strong>🚨 National Emergency</strong><br>
+          📞 <a href="tel:911">911</a>
+        </div>
+
+      </div>
+
+      <button onclick="closeHotlines()">Close</button>
+    </div>
+  </div>
+
+  <!-- 📢 REPORT MODAL -->
+  <div id="reportModal" class="modal">
+    <div class="modal-content">
+      <h3>Report Flood</h3>
+      <p>Select a barangay first, then submit.</p>
+      <button onclick="submitReport()">Submit Report</button>
+      <button onclick="closeReport()">Cancel</button>
+    </div>
+  </div>
+
+  </div>
+
+  <!-- YOUR FILES -->
+  <script src="js/map.js"></script>
+  <script src="js/layers.js"></script>
+  <script src="js/utils.js"></script>
+</body>
+
+</html>
