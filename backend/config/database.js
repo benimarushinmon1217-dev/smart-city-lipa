@@ -1,6 +1,6 @@
 /**
  * Database Configuration
- * Sequelize connection setup for MySQL
+ * Sequelize connection setup for MySQL / Aiven MySQL
  */
 
 const { Sequelize } = require('sequelize');
@@ -15,19 +15,34 @@ const sequelize = new Sequelize(
         host: process.env.DB_HOST,
         port: process.env.DB_PORT || 3306,
         dialect: 'mysql',
-        logging: process.env.NODE_ENV === 'development' ? console.log : false,
+
+        // Aiven requires SSL/TLS
+        dialectOptions: {
+            ssl: {
+                require: true,
+                rejectUnauthorized: false
+            }
+        },
+
+        logging:
+            process.env.NODE_ENV === 'development'
+                ? console.log
+                : false,
+
         pool: {
             max: 10,
             min: 0,
             acquire: 30000,
             idle: 10000
         },
+
         define: {
             timestamps: true,
             underscored: true,
             freezeTableName: false
         },
-        timezone: '+08:00' // Philippine timezone
+
+        timezone: '+08:00'
     }
 );
 
@@ -43,4 +58,7 @@ const testConnection = async () => {
     }
 };
 
-module.exports = { sequelize, testConnection };
+module.exports = {
+    sequelize,
+    testConnection
+};
