@@ -232,7 +232,7 @@ const Dashboard = () => {
                                 <div className="flex items-center space-x-3">
                                     <Badge
                                         variant={
-                                            incident.severity === 'high'
+                                            incident.severity === 'critical' || incident.severity === 'high'
                                                 ? 'danger'
                                                 : incident.severity === 'medium'
                                                     ? 'warning'
