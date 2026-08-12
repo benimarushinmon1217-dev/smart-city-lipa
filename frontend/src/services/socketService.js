@@ -19,7 +19,6 @@ class SocketService {
      */
     connect() {
         if (this.socket?.connected) {
-            console.log('Socket already connected');
             return;
         }
 
@@ -106,44 +105,61 @@ class SocketService {
             return;
         }
 
-        console.log(`🎧 [FRONTEND] Registering listener for event: "${event}"`);
-
-        // Wrap callback with debug logging
         const wrappedCallback = (data) => {
-            console.log(`📨 [FRONTEND] Received socket event: "${event}"`);
-            console.log(`📨 [FRONTEND] Event data:`, data);
             callback(data);
         };
 
+        // Keep a reference to the original callback so off()
+        // can correctly find this wrapped listener later.
+        wrappedCallback._originalCallback = callback;
+
         this.socket.on(event, wrappedCallback);
 
-        // Store listener for cleanup
         if (!this.listeners.has(event)) {
             this.listeners.set(event, []);
         }
-        this.listeners.get(event).push(wrappedCallback);
 
-        console.log(`✅ [FRONTEND] Listener registered for "${event}". Total listeners: ${this.listeners.get(event).length}`);
+        this.listeners.get(event).push(wrappedCallback);
     }
 
-    /**
-     * Unsubscribe from event
-     */
     off(event, callback) {
-        if (!this.socket) return;
+        if (!this.socket) {
+            return;
+        }
 
-        this.socket.off(event, callback);
+        if (!this.listeners.has(event)) {
+            return;
+        }
 
-        // Remove from listeners map
-        if (this.listeners.has(event)) {
-            const callbacks = this.listeners.get(event);
-            const index = callbacks.indexOf(callback);
-            if (index > -1) {
-                callbacks.splice(index, 1);
+        const registeredListeners = this.listeners.get(event);
+
+        // Remove ALL listeners for this event
+        if (!callback) {
+            registeredListeners.forEach((wrappedCallback) => {
+                this.socket.off(event, wrappedCallback);
+            });
+
+            this.listeners.delete(event);
+            return;
+        }
+
+        // Find the wrapper corresponding to the original callback
+        const index = registeredListeners.findIndex(
+            (wrappedCallback) =>
+                wrappedCallback._originalCallback === callback
+        );
+
+        if (index !== -1) {
+            const wrappedCallback = registeredListeners[index];
+
+            this.socket.off(event, wrappedCallback);
+            registeredListeners.splice(index, 1);
+
+            if (registeredListeners.length === 0) {
+                this.listeners.delete(event);
             }
         }
     }
-
     /**
      * Remove all listeners for a specific event or all events
      */
@@ -154,16 +170,26 @@ class SocketService {
         }
 
         if (event) {
-            // Remove listeners for specific event
-            this.socket.off(event);
+            const registeredListeners = this.listeners.get(event);
+
+            if (registeredListeners) {
+                registeredListeners.forEach((wrappedCallback) => {
+                    this.socket.off(event, wrappedCallback);
+                });
+            }
+
             this.listeners.delete(event);
         } else {
-            // Remove all listeners
-            this.socket.removeAllListeners();
+            // Remove listeners tracked by this service
+            for (const [eventName, registeredListeners] of this.listeners.entries()) {
+                registeredListeners.forEach((wrappedCallback) => {
+                    this.socket.off(eventName, wrappedCallback);
+                });
+            }
+
             this.listeners.clear();
         }
     }
-
     /**
      * Emit event
      */
