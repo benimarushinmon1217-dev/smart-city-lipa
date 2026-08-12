@@ -192,7 +192,7 @@ const AIAdvisorWidget = () => {
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-primary-600 to-blue-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all hover:scale-110 group"
+                    className="fixed bottom-6 right-6 z-[1200] bg-gradient-to-r from-primary-600 to-blue-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all hover:scale-110 group"
                 >
                     <div className="relative">
                         <Sparkles className="h-6 w-6 animate-pulse" />
@@ -212,7 +212,7 @@ const AIAdvisorWidget = () => {
             {isOpen && (
                 <div
                     className={`
-            fixed bottom-6 right-6 z-50 bg-white rounded-lg shadow-2xl border border-gray-200
+            fixed bottom-6 right-6 z-[1200] bg-white rounded-lg shadow-2xl border border-gray-200
             transition-all duration-300
             ${isMinimized ? 'w-80 h-16' : 'w-96 h-[600px]'}
           `}
