@@ -4,6 +4,7 @@
  */
 
 const aiService = require('./aiService');
+const barangayService = require('./barangayService');
 const routeRecommendationService = require('./routeRecommendationService');
 const logger = require('../utils/logger');
 
@@ -75,6 +76,23 @@ class ChatbotService {
                 hazardData.ashfall_risk,
                 intent
             );
+
+            // Enrich context with barangay statistics if barangay_code is provided
+            if (hazardData.barangay_code) {
+                try {
+                    const barangay = await barangayService.getBarangayByCode(hazardData.barangay_code);
+                    if (barangay) {
+                        const barangayStats = await barangayService.getBarangayStats(barangay.id);
+                        context.barangay_data = {
+                            id: barangay.id,
+                            statistics: barangayStats
+                        };
+                    }
+                } catch (statsError) {
+                    logger.warn('Could not fetch barangay statistics for chatbot context:', statsError.message);
+                    // Continue without stats - this is not a critical failure
+                }
+            }
 
             try {
                 const aiReply = await this.getAIResponse(question, context, intent, shelterInfo, safetyMessage);

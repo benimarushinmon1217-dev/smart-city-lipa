@@ -161,6 +161,19 @@ class BarangayService {
     }
 
     /**
+     * Get barangay by administrative code
+     */
+    async getBarangayByCode(code) {
+        try {
+            const barangay = await Barangay.findOne({ where: { code } });
+            return barangay;
+        } catch (error) {
+            logger.error('Error in getBarangayByCode:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Create new barangay
      */
     async createBarangay(data) {

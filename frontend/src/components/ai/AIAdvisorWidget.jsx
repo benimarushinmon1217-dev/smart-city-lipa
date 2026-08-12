@@ -122,6 +122,7 @@ const AIAdvisorWidget = () => {
 
             // Location info
             barangay_name: String(barangayProps.ADM4_EN || barangayProps.name || 'your area'),
+            barangay_code: barangayProps.ADM4_PCODE || 'unknown',
             latitude: userLocation?.lat || barangayProps.latitude,
             longitude: userLocation?.lng || barangayProps.longitude,
 
