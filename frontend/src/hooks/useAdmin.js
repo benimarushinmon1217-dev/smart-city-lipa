@@ -19,7 +19,7 @@ export const useAdmin = () => {
                 const response = await api.get(API_ENDPOINTS.ADMIN.STATS);
                 return response.data;
             },
-            refetchInterval: 60000, // Refetch every minute
+            refetchInterval: 300000, // Refetch every 5 minutes as a fallback: 60000, // Refetch every minute
         });
     };
 

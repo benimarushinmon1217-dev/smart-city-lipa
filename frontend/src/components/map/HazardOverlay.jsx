@@ -22,7 +22,7 @@ const HazardOverlay = () => {
             const response = await api.get(API_ENDPOINTS.TRAFFIC.LIST);
             return response.data;
         },
-        refetchInterval: 60000, // Refetch every minute
+        refetchInterval: 300000, // Refetch every minute
     });
 
     useEffect(() => {

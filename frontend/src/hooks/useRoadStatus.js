@@ -26,7 +26,7 @@ export const useRoadStatus = () => {
             const response = await api.get(API_ENDPOINTS.TRAFFIC.ROAD_STATUS);
             return response.data;
         },
-        refetchInterval: 30000, // Refetch every 30 seconds
+        refetchInterval: 300000, // Refetch every 5 minutes as a fallback
     });
 
     // Update road status mutation
