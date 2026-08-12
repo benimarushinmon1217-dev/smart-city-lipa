@@ -56,7 +56,7 @@ const ShelterMonitoring = () => {
     const getStatusBadge = (shelter) => {
         const occupancy = calculateOccupancy(shelter);
 
-        if (shelter.status === 'unavailable' || shelter.status === 'damaged') {
+        if (shelter.is_operational === false) {
             return <Badge variant="danger" size="sm">Unavailable</Badge>;
         }
 
@@ -82,10 +82,10 @@ const ShelterMonitoring = () => {
     const totalCapacity = shelters.reduce((sum, s) => sum + (s.capacity || 0), 0);
     const totalOccupancy = shelters.reduce((sum, s) => sum + (s.current_occupancy || 0), 0);
     const availableShelters = shelters.filter(s =>
-        s.status === 'available' && calculateOccupancy(s) < 100
+        s.is_operational !== false && calculateOccupancy(s) < 100
     ).length;
     const criticalShelters = shelters.filter(s =>
-        calculateOccupancy(s) >= 80 || s.status === 'unavailable'
+        calculateOccupancy(s) >= 80 || s.is_operational === false
     ).length;
 
     return (
