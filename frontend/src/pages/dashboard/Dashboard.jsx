@@ -94,7 +94,7 @@ const Dashboard = () => {
             off('emergency:alert');
             off('announcement:new');
         };
-    }, [on, off, connect, refetchIncidents, refetchReports, refetchNotifications]);
+    }, [on, off, connect, refetchIncidents, refetchReports]);
 
     // DEBUG: Log incidents data
     console.log('🔍 [DASHBOARD] Incidents data:', incidents);
