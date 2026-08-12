@@ -25,12 +25,13 @@ const Dashboard = () => {
     const { incidents, isLoading: loadingIncidents, refetch: refetchIncidents } = useIncidents({
         limit: 5
     });
+
     const { reports, isLoading: loadingReports, refetch: refetchReports } = useReports({
         status: 'pending',
         limit: 5
     });
-    const { unreadCount, refetch: refetchNotifications } = useNotifications();
 
+    const { unreadCount } = useNotifications();
     // Real-time updates - only refetch data, toasts handled by useSocketEvents
     useEffect(() => {
         connect();
@@ -61,12 +62,6 @@ const Dashboard = () => {
         // Listen for report updates
         on('report:updated', () => {
             refetchReports();
-        });
-
-        // Listen for new notifications
-        on('notification:new', () => {
-            refetchNotifications();
-            // Toast is handled by useSocketEvents hook
         });
 
         // Listen for emergency alerts - SHOW MODAL

@@ -41,7 +41,7 @@ export const useNotifications = () => {
             }
         },
         enabled: isAuthenticated, // Only run query if authenticated
-        refetchInterval: isAuthenticated ? 30000 : false, // Only refetch if authenticated
+        refetchInterval: false,
         retry: false, // Don't retry on 401 errors
     });
 
@@ -60,7 +60,7 @@ export const useNotifications = () => {
             }
         },
         enabled: isAuthenticated, // Only run query if authenticated
-        refetchInterval: isAuthenticated ? 30000 : false, // Only refetch if authenticated
+        refetchInterval: false,
         retry: false, // Don't retry on 401 errors
     });
 
