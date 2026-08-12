@@ -30,11 +30,6 @@ export const useSocketEvents = () => {
                 console.log('🔔 [SOCKET EVENTS] notification:new received:', notification);
                 addNotification(notification);
 
-                // Force immediate refetch of notification queries
-                console.log('🔔 [SOCKET EVENTS] Refetching notification queries...');
-                queryClient.refetchQueries({ queryKey: ['notifications'] });
-                queryClient.refetchQueries({ queryKey: ['notifications', 'unread-count'] });
-
                 // Don't show toast here - toasts are already shown by specific event handlers
                 // This prevents duplicate notifications
             });
@@ -44,11 +39,6 @@ export const useSocketEvents = () => {
                 console.log('🔔 [SOCKET EVENTS] incident:new received:', data);
                 queryClient.invalidateQueries({ queryKey: ['incidents'] });
                 queryClient.invalidateQueries({ queryKey: ['admin-incidents'] });
-
-                // Force immediate refetch of notifications
-                console.log('🔔 [SOCKET EVENTS] Refetching notifications after incident...');
-                queryClient.refetchQueries({ queryKey: ['notifications'] });
-                queryClient.refetchQueries({ queryKey: ['notifications', 'unread-count'] });
 
                 const incidentId = data?.incident?.id || data?.id;
                 const title = data?.incident?.title || data?.title || 'New incident';
@@ -80,11 +70,6 @@ export const useSocketEvents = () => {
                 console.log('🔔 [SOCKET EVENTS] report:new received:', data);
                 queryClient.invalidateQueries({ queryKey: ['reports'] });
                 queryClient.invalidateQueries({ queryKey: ['admin-reports'] });
-
-                // Force immediate refetch of notifications
-                console.log('🔔 [SOCKET EVENTS] Refetching notifications after report...');
-                queryClient.refetchQueries({ queryKey: ['notifications'] });
-                queryClient.refetchQueries({ queryKey: ['notifications', 'unread-count'] });
 
                 const reportId = data?.report?.id || data?.id;
                 const title = data?.report?.title || data?.title || 'New report';
