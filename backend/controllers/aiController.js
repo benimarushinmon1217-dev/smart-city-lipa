@@ -147,6 +147,27 @@ exports.getRouteRecommendation = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    Calculate road route using OSRM
+ * @route   POST /api/ai/route-recommendation/road-route
+ * @access  Public/Optional Auth
+ */
+exports.getRoadRoute = asyncHandler(async (req, res) => {
+    const { origin, destination } = req.body;
+
+    if (!origin || !destination) {
+        return errorResponse(res, 'Origin and destination are required', 400);
+    }
+
+    const result = await routeRecommendationService.calculateRoadRoute(origin, destination);
+
+    if (!result.success) {
+        return errorResponse(res, result.message, result.statusCode || 503, { code: result.code || 'OSRM_UNAVAILABLE' });
+    }
+
+    successResponse(res, { route: result.route }, 'Road route calculated successfully');
+});
+
+/**
  * @desc    Find nearest evacuation center
  * @route   POST /api/ai/route-recommendation/evacuation-center
  * @access  Public/Optional Auth

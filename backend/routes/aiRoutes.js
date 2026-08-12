@@ -15,6 +15,7 @@ const {
     multiHazardAnalysisValidator,
     routeRecommendationValidator,
     findEvacuationCenterValidator,
+    roadRouteValidator,
     routeHazardScoreValidator,
     checkRouteIncidentsValidator
 } = require('../validators/aiValidator');
@@ -80,6 +81,14 @@ router.post(
     findEvacuationCenterValidator,
     validate,
     aiController.findNearestEvacuationCenter
+);
+
+router.post(
+    '/route-recommendation/road-route',
+    optionalAuth,
+    roadRouteValidator,
+    validate,
+    aiController.getRoadRoute
 );
 
 router.post(

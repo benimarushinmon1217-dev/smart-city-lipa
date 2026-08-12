@@ -206,6 +206,41 @@ exports.findEvacuationCenterValidator = [
 ];
 
 /**
+ * Validate road route request
+ */
+exports.roadRouteValidator = [
+    body('origin')
+        .notEmpty().withMessage('Origin is required')
+        .isObject()
+        .withMessage('Origin must be an object with lat/lng'),
+
+    body('origin.lat')
+        .notEmpty().withMessage('Origin latitude is required')
+        .isFloat({ min: -90, max: 90 })
+        .withMessage('Origin latitude must be between -90 and 90'),
+
+    body('origin.lng')
+        .notEmpty().withMessage('Origin longitude is required')
+        .isFloat({ min: -180, max: 180 })
+        .withMessage('Origin longitude must be between -180 and 180'),
+
+    body('destination')
+        .notEmpty().withMessage('Destination is required')
+        .isObject()
+        .withMessage('Destination must be an object with lat/lng'),
+
+    body('destination.lat')
+        .notEmpty().withMessage('Destination latitude is required')
+        .isFloat({ min: -90, max: 90 })
+        .withMessage('Destination latitude must be between -90 and 90'),
+
+    body('destination.lng')
+        .notEmpty().withMessage('Destination longitude is required')
+        .isFloat({ min: -180, max: 180 })
+        .withMessage('Destination longitude must be between -180 and 180')
+];
+
+/**
  * Validate route hazard score request
  */
 exports.routeHazardScoreValidator = [

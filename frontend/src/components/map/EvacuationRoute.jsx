@@ -75,97 +75,59 @@ const EvacuationRoute = ({ userLocation, onRouteCalculated }) => {
             if (data.found && data.nearest) {
                 setNearestCenter(data.nearest);
 
-                // Use OSRM for real road-based routing
                 try {
-                    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${userLocation.lng},${userLocation.lat};${data.nearest.longitude},${data.nearest.latitude}?overview=full&geometries=geojson`;
+                    const response = await api.post(API_ENDPOINTS.AI.ROAD_ROUTE, {
+                        origin: {
+                            lat: userLocation.lat,
+                            lng: userLocation.lng,
+                        },
+                        destination: {
+                            lat: data.nearest.latitude,
+                            lng: data.nearest.longitude,
+                        },
+                    });
 
-                    const osrmResponse = await fetch(osrmUrl);
-                    const osrmData = await osrmResponse.json();
+                    const routeResponse = response?.data?.route;
 
-                    if (osrmData.routes && osrmData.routes.length > 0) {
-                        const route = osrmData.routes[0];
-
-                        // Convert GeoJSON coordinates to Leaflet format [lat, lng]
-                        const routePoints = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
-
-                        const distance = route.distance / 1000; // Convert meters to km
-                        const estimatedTime = Math.ceil(route.duration / 60); // Convert seconds to minutes
-
-                        // Analyze route segments for risk
-                        const segments = await analyzeRouteRisk(route.geometry.coordinates);
-                        setRouteSegments(segments);
-
-                        // Calculate risk summary
-                        const riskSummary = calculateRiskSummary(segments);
-                        setRouteRiskSummary(riskSummary);
-
-                        const routeData = {
-                            points: routePoints,
-                            distance: distance,
-                            estimatedTime: estimatedTime,
-                            center: data.nearest,
-                            segments: segments,
-                            riskSummary: riskSummary,
-                        };
-
-                        setRoute(routeData);
-
-                        if (onRouteCalculated) {
-                            onRouteCalculated(routeData);
-                        }
-
-                        toast.success(`Route calculated: ${distance.toFixed(2)} km, ~${estimatedTime} min`);
-                    } else {
-                        // Fallback to straight line if OSRM fails
-                        const routePoints = [
-                            [userLocation.lat, userLocation.lng],
-                            [data.nearest.latitude, data.nearest.longitude],
-                        ];
-
-                        const distance = data.nearest.distance;
-                        const estimatedTime = Math.ceil((distance / 5) * 60);
-
-                        const routeData = {
-                            points: routePoints,
-                            distance: distance,
-                            estimatedTime: estimatedTime,
-                            center: data.nearest,
-                        };
-
-                        setRoute(routeData);
-
-                        if (onRouteCalculated) {
-                            onRouteCalculated(routeData);
-                        }
-
-                        toast.success(`Nearest evacuation center: ${data.nearest.name}`);
+                    if (!routeResponse || !routeResponse.geometry || !routeResponse.geometry.coordinates) {
+                        throw new Error('Road route response missing geometry');
                     }
-                } catch (osrmError) {
-                    console.error('OSRM routing failed, using straight line:', osrmError);
 
-                    // Fallback to straight line
-                    const routePoints = [
-                        [userLocation.lat, userLocation.lng],
-                        [data.nearest.latitude, data.nearest.longitude],
-                    ];
+                    const route = routeResponse;
+                    const routePoints = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
 
-                    const distance = data.nearest.distance;
-                    const estimatedTime = Math.ceil((distance / 5) * 60);
+                    const distance = route.distance / 1000;
+                    const estimatedTime = Math.ceil(route.duration / 60);
+
+                    const segments = await analyzeRouteRisk(route.geometry.coordinates);
+                    setRouteSegments(segments);
+
+                    const riskSummary = calculateRiskSummary(segments);
+                    setRouteRiskSummary(riskSummary);
 
                     const routeData = {
                         points: routePoints,
                         distance: distance,
                         estimatedTime: estimatedTime,
                         center: data.nearest,
+                        segments: segments,
+                        riskSummary: riskSummary,
                     };
 
                     setRoute(routeData);
+                    setError(null);
 
                     if (onRouteCalculated) {
                         onRouteCalculated(routeData);
                     }
 
-                    toast.success(`Nearest evacuation center: ${data.nearest.name}`);
+                    toast.success(`Route calculated: ${distance.toFixed(2)} km, ~${estimatedTime} min`);
+                } catch (osrmError) {
+                    setRoute(null);
+                    setRouteSegments([]);
+                    setRouteRiskSummary(null);
+                    setError('Road route unavailable');
+                    toast.error('Road route unavailable');
                 }
             } else {
                 setError('No evacuation centers found nearby');

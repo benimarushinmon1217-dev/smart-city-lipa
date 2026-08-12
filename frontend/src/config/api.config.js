@@ -100,6 +100,7 @@ export const API_ENDPOINTS = {
         MULTI_HAZARD: '/ai/analyze-risk/multi-hazard',
         ROUTE_RECOMMENDATION: '/ai/route-recommendation',
         EVACUATION_CENTER: '/ai/route-recommendation/evacuation-center',
+        ROAD_ROUTE: '/ai/route-recommendation/road-route',
         HAZARD_SCORE: '/ai/route-recommendation/hazard-score',
         CHECK_INCIDENTS: '/ai/route-recommendation/check-incidents',
     },

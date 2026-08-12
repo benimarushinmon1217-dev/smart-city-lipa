@@ -126,6 +126,110 @@ class RouteRecommendationService {
     }
 
     /**
+     * Calculate an OSRM road route between two coordinates
+     */
+    async calculateRoadRoute(origin, destination) {
+        try {
+            const originLat = Number(origin?.lat);
+            const originLng = Number(origin?.lng);
+            const destinationLat = Number(destination?.lat);
+            const destinationLng = Number(destination?.lng);
+
+            if (
+                !Number.isFinite(originLat) || !Number.isFinite(originLng) ||
+                !Number.isFinite(destinationLat) || !Number.isFinite(destinationLng)
+            ) {
+                return {
+                    success: false,
+                    message: 'Invalid coordinates provided',
+                    code: 'INVALID_COORDINATES',
+                    statusCode: 400
+                };
+            }
+
+            if (
+                originLat < -90 || originLat > 90 ||
+                originLng < -180 || originLng > 180 ||
+                destinationLat < -90 || destinationLat > 90 ||
+                destinationLng < -180 || destinationLng > 180
+            ) {
+                return {
+                    success: false,
+                    message: 'Coordinates are out of range',
+                    code: 'INVALID_COORDINATES',
+                    statusCode: 400
+                };
+            }
+
+            const osrmBaseUrl = process.env.OSRM_API_URL;
+
+            if (!osrmBaseUrl) {
+                return {
+                    success: false,
+                    message: 'Road route service is not configured',
+                    code: 'OSRM_NOT_CONFIGURED',
+                    statusCode: 503
+                };
+            }
+
+            const url = `${osrmBaseUrl}/route/v1/driving/${originLng},${originLat};${destinationLng},${destinationLat}?overview=full&geometries=geojson`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    signal: controller.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`OSRM request failed with status ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (!data.routes || data.routes.length === 0) {
+                    return {
+                        success: false,
+                        message: 'Road route is currently unavailable',
+                        code: 'OSRM_UNAVAILABLE',
+                        statusCode: 503
+                    };
+                }
+
+                const route = data.routes[0];
+
+                return {
+                    success: true,
+                    route: {
+                        distance: route.distance,
+                        duration: route.duration,
+                        geometry: route.geometry
+                    }
+                };
+            } catch (error) {
+                logger.error('OSRM routing request failed:', error);
+                return {
+                    success: false,
+                    message: 'Road route is currently unavailable',
+                    code: 'OSRM_UNAVAILABLE',
+                    statusCode: 503
+                };
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        } catch (error) {
+            logger.error('Error in calculateRoadRoute:', error);
+            return {
+                success: false,
+                message: 'Road route is currently unavailable',
+                code: 'OSRM_UNAVAILABLE',
+                statusCode: 503
+            };
+        }
+    }
+
+    /**
      * Get hazard-aware route scoring
      */
     async getRouteHazardScore(routePoints, hazardData) {
