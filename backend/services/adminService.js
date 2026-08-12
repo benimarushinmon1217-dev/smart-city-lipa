@@ -261,34 +261,34 @@ class AdminService {
                 transaction
             });
 
-            // Set creator to NULL for announcements created by this user
-            await Announcement.update(
-                { created_by: null },
-                { where: { created_by: userId }, transaction }
-            );
+            // Delete announcements created by this user
+            await Announcement.destroy({
+                where: { created_by: userId },
+                transaction
+            });
 
-            // Set reported_by to NULL for incidents reported by this user
-            await Incident.update(
-                { reported_by: null },
-                { where: { reported_by: userId }, transaction }
-            );
+            // Delete incidents reported by this user
+            await Incident.destroy({
+                where: { reported_by: userId },
+                transaction
+            });
 
-            // Set verified_by to NULL for incidents verified by this user
-            await Incident.update(
-                { verified_by: null },
-                { where: { verified_by: userId }, transaction }
-            );
+            // Delete reports created by this user
+            await Report.destroy({
+                where: { user_id: userId },
+                transaction
+            });
 
-            // Set user_id to NULL for reports created by this user
-            await Report.update(
-                { user_id: null },
-                { where: { user_id: userId }, transaction }
-            );
-
-            // Set assigned_to to NULL for reports assigned to this user
+            // Clear any reports assigned to this user (set to NULL only where allowed)
             await Report.update(
                 { assigned_to: null },
                 { where: { assigned_to: userId }, transaction }
+            );
+
+            // Clear verified_by for incidents verified by this user (set to NULL only where allowed)
+            await Incident.update(
+                { verified_by: null },
+                { where: { verified_by: userId }, transaction }
             );
 
             // Delete the user
