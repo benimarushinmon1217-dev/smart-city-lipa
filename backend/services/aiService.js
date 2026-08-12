@@ -104,20 +104,32 @@ class AIService {
     }
 
     /**
-     * Get safety override message (highest priority)
+     * Get contextual safety message without replacing the user's actual question.
      */
-    getSafetyOverrideMessage(floodRisk, ashfallRisk) {
+    getSafetyOverrideMessage(floodRisk, ashfallRisk, intent = 'GENERAL') {
         const normalizedFlood = this.normalizeRiskLevel(floodRisk);
         const normalizedAshfall = this.normalizeRiskLevel(ashfallRisk);
+        const contextualIntents = new Set([
+            'NEAREST_SHELTER',
+            'HAZARDS',
+            'SAFETY_STATUS',
+            'EVACUATION',
+            'FLOOD',
+            'ASHFALL',
+            'ROUTE',
+            'GENERAL'
+        ]);
 
-        // Check for high flood risk
-        if (normalizedFlood === 'high') {
-            return `Your area is not safe due to high flood risk (${floodRisk}). Please evacuate to higher ground immediately and follow official evacuation orders.`;
+        if (!contextualIntents.has(intent)) {
+            return null;
         }
 
-        // Check for high ashfall risk
+        if (normalizedFlood === 'high') {
+            return `Your area is currently not considered safe because flood risk is high (${floodRisk}). Please move to higher ground and follow official evacuation guidance.`;
+        }
+
         if (normalizedAshfall === 'high') {
-            return `Your area is not safe due to high ashfall risk (${ashfallRisk}). Stay indoors, seal windows and doors, and avoid exposure to volcanic ash.`;
+            return `Your area is currently not considered safe because ashfall risk is high (${ashfallRisk}). Stay indoors, seal windows and doors, and avoid ash exposure.`;
         }
 
         return null;
@@ -152,51 +164,85 @@ class AIService {
     /**
      * Generate fallback response when AI is unavailable
      */
-    getFallbackResponse(question, hazardContext) {
+    getFallbackResponse(question, hazardContext, intent = 'GENERAL', shelterInfo = null, safetyMessage = null) {
         const questionLower = question.toLowerCase();
 
-        // Flood-related questions
-        if (questionLower.includes('flood')) {
+        if (intent === 'GREETING') {
+            return 'Hi! I can help with hazard updates, safety questions, evacuation guidance, or shelter information.';
+        }
+
+        if (intent === 'NEAREST_SHELTER') {
+            if (shelterInfo && shelterInfo.name) {
+                return `The nearest evacuation center available is ${shelterInfo.name}, about ${shelterInfo.distance_km} km away. Please use the map or official shelter info for the most current details.${safetyMessage ? ` ${safetyMessage}` : ''}`;
+            }
+
+            return 'I can help locate the nearest shelter through the available map or shelter information. I do not have a verified shelter location in this chat context.';
+        }
+
+        if (intent === 'HAZARDS') {
+            const riskSummary = [
+                hazardContext.flood_risk !== 'low' ? `Flood risk is ${hazardContext.flood_risk}.` : null,
+                hazardContext.ashfall_risk !== 'low' ? `Ashfall risk is ${hazardContext.ashfall_risk}.` : null
+            ].filter(Boolean).join(' ');
+
+            return riskSummary || 'Current hazard information is limited, but please keep monitoring official advisories.';
+        }
+
+        if (intent === 'SAFETY_STATUS') {
+            if (!hazardContext.is_safe) {
+                return `Your area is currently not considered safe because the current risk level is elevated. ${safetyMessage || 'Please follow official advisories and stay alert.'}`;
+            }
+            return 'Current conditions are relatively stable, but continue monitoring official updates and local advisories.';
+        }
+
+        if (intent === 'EVACUATION') {
+            if (!hazardContext.is_safe) {
+                return 'Evacuation guidance is important for your current conditions. Move to a safe, higher location and follow official evacuation instructions.';
+            }
+            return 'Evacuation is not currently required based on the available information, but stay prepared if conditions change.';
+        }
+
+        if (intent === 'FLOOD') {
             if (hazardContext.flood_risk === 'high') {
-                return 'Flood risk in your area is high. Please evacuate to higher ground and follow official instructions.';
-            } else if (hazardContext.flood_risk === 'medium') {
-                return 'Flood risk is moderate. Stay alert and prepare for possible evacuation.';
-            } else {
-                return 'Flood risk is currently low, but continue monitoring weather updates.';
+                return `Flood risk is high in your current area. This means the risk of flooding is significant, and you should avoid low-lying areas and follow official guidance.${safetyMessage ? ` ${safetyMessage}` : ''}`;
             }
+            return `Flood risk is currently ${hazardContext.flood_risk}. Stay alert to heavy rain and avoid low-lying areas if conditions worsen.`;
         }
 
-        // Ashfall-related questions
-        if (questionLower.includes('ashfall') || questionLower.includes('ash')) {
+        if (intent === 'ASHFALL') {
             if (hazardContext.ashfall_risk === 'high') {
-                return 'Ashfall risk is high. Stay indoors and avoid exposure to volcanic ash.';
-            } else if (hazardContext.ashfall_risk === 'medium') {
-                return 'Ashfall risk is moderate. Limit outdoor activities and wear protective masks if going outside.';
-            } else {
-                return 'Ashfall risk is low, but stay aware of wind direction changes.';
+                return `Ashfall risk is high. Stay indoors, keep windows closed, and avoid ash exposure.${safetyMessage ? ` ${safetyMessage}` : ''}`;
             }
+            return `Ashfall risk is currently ${hazardContext.ashfall_risk}. Keep an eye on wind conditions and local advisories if ash is expected.`;
         }
 
-        // Safety-related questions
+        if (intent === 'ROUTE') {
+            return 'I can help with route guidance, but route details should be taken from the map or available route tools in this app.';
+        }
+
+        if (questionLower.includes('flood')) {
+            return `Flood risk is currently ${hazardContext.flood_risk}. This means your area is experiencing ${hazardContext.flood_risk === 'high' ? 'elevated flood risk' : 'a moderate or low flood risk'} under current conditions.`;
+        }
+
+        if (questionLower.includes('ashfall') || questionLower.includes('ash')) {
+            return `Ashfall risk is currently ${hazardContext.ashfall_risk}. Use the current wind and ashfall context when deciding whether to stay indoors or limit outdoor exposure.`;
+        }
+
         if (questionLower.includes('safe')) {
             if (!hazardContext.is_safe) {
-                return 'Your area is currently not safe due to high hazard levels. Please follow evacuation orders.';
-            } else {
-                return 'Current conditions are relatively safe, but continue monitoring official updates.';
+                return safetyMessage || 'Your area is currently not considered safe because the current risk level is elevated.';
             }
+            return 'Current conditions appear relatively stable, but continue monitoring official advisories and local updates.';
         }
 
-        // Evacuation-related questions
         if (questionLower.includes('evacuate') || questionLower.includes('evacuation')) {
             if (!hazardContext.is_safe) {
-                return 'Yes, evacuation is recommended. Please proceed to the nearest evacuation center immediately.';
-            } else {
-                return 'Evacuation is not currently required, but be prepared to evacuate if conditions worsen.';
+                return 'Evacuation guidance is important under the current conditions. Follow official instructions and move to a safe location.';
             }
+            return 'Evacuation is not currently required based on the available risk information, but remain prepared if conditions change.';
         }
 
-        // Default response
-        return 'Based on current data, please refer to the risk levels on the map and follow official disaster management advisories.';
+        return 'I can help with current risk levels, safety guidance, evacuation advice, and hazard updates. Please ask a more specific question.';
     }
 }
 

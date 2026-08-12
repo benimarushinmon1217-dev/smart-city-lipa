@@ -4,58 +4,101 @@
  */
 
 const aiService = require('./aiService');
+const routeRecommendationService = require('./routeRecommendationService');
 const logger = require('../utils/logger');
 
 class ChatbotService {
+    detectIntent(question) {
+        const normalized = String(question || '').toLowerCase().trim();
+        const intentPatterns = {
+            GREETING: ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'thanks', 'thank you'],
+            NEAREST_SHELTER: ['nearest shelter', 'closest shelter', 'evacuation center near me', 'where can i evacuate', 'where should i evacuate', 'nearest evacuation', 'closest evacuation', 'shelter near me'],
+            HAZARDS: ['hazards near me', 'dangers near me', 'what hazards', 'what is happening near me', 'what hazards are near me', 'hazard near me', 'danger near me'],
+            SAFETY_STATUS: ['am i safe', 'is it safe', 'are we safe', 'is my area safe', 'should i be worried', 'is this area safe'],
+            EVACUATION: ['should i evacuate', 'do i need to evacuate', 'evacuate now', 'evacuation order', 'need to evacuate'],
+            FLOOD: ['flood', 'flooding', 'flood risk', 'water level', 'flooded'],
+            ASHFALL: ['ashfall', 'volcanic ash', 'ash', 'taal ash'],
+            ROUTE: ['route', 'directions', 'how do i get there', 'how to get to', 'direction to']
+        };
+
+        for (const [intent, patterns] of Object.entries(intentPatterns)) {
+            if (patterns.some(pattern => normalized.includes(pattern))) {
+                return intent;
+            }
+        }
+
+        return 'GENERAL';
+    }
+
+    async getShelterInfo(hazardData = {}) {
+        const latitude = Number(hazardData.latitude ?? hazardData.lat);
+        const longitude = Number(hazardData.longitude ?? hazardData.lng);
+
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+            return null;
+        }
+
+        try {
+            const result = await routeRecommendationService.findNearestEvacuationCenter(
+                latitude,
+                longitude,
+                hazardData.barangay_id || null
+            );
+
+            if (!result || !result.found || !result.nearest) {
+                return null;
+            }
+
+            return {
+                name: result.nearest.name,
+                address: result.nearest.address,
+                distance_km: Number(result.nearest.distance || 0).toFixed(1),
+                contact: result.nearest.contact || null
+            };
+        } catch (error) {
+            logger.warn('Could not fetch shelter info for chatbot request:', error.message);
+            return null;
+        }
+    }
+
     /**
      * Process chatbot query with hazard context
      */
     async processQuery(question, hazardData = {}) {
         try {
-            // Build hazard context
             const context = aiService.buildHazardContext(hazardData);
-
-            // SAFETY OVERRIDE: Check for high-risk conditions
+            const questionLower = question.toLowerCase().trim();
+            const intent = this.detectIntent(questionLower);
+            const shelterInfo = intent === 'NEAREST_SHELTER' ? await this.getShelterInfo(hazardData) : null;
             const safetyMessage = aiService.getSafetyOverrideMessage(
                 hazardData.flood_risk,
-                hazardData.ashfall_risk
+                hazardData.ashfall_risk,
+                intent
             );
 
-            if (safetyMessage) {
-                logger.info('Safety override triggered for chatbot query');
-                return {
-                    reply: safetyMessage,
-                    context: context,
-                    source: 'safety_override'
-                };
-            }
-
-            // Check for specific ashfall questions with high risk
-            const questionLower = question.toLowerCase().trim();
-            if (questionLower.includes('ashfall') && context.ashfall_risk === 'high') {
-                return {
-                    reply: `The ashfall risk in your area is ${hazardData.ashfall_risk}, so the area is not safe and ashfall exposure is likely. Stay indoors and seal windows.`,
-                    context: context,
-                    source: 'specific_override'
-                };
-            }
-
-            // Try to get AI response
             try {
-                const aiReply = await this.getAIResponse(question, context);
+                const aiReply = await this.getAIResponse(question, context, intent, shelterInfo, safetyMessage);
                 return {
                     reply: aiReply,
                     context: context,
+                    intent,
                     source: 'ai'
                 };
             } catch (aiError) {
                 logger.warn('AI service unavailable, using fallback:', aiError.message);
 
-                // Use fallback response
-                const fallbackReply = aiService.getFallbackResponse(question, context);
+                const fallbackReply = aiService.getFallbackResponse(
+                    question,
+                    context,
+                    intent,
+                    shelterInfo,
+                    safetyMessage
+                );
+
                 return {
                     reply: fallbackReply,
                     context: context,
+                    intent,
                     source: 'fallback'
                 };
             }
@@ -68,60 +111,50 @@ class ChatbotService {
     /**
      * Get AI-generated response using Groq API
      */
-    async getAIResponse(question, context) {
-        // Build system prompt (matching old app.py behavior)
-        const systemPrompt = `You are a Smart City Disaster Response Assistant for Lipa City, Philippines.
+    async getAIResponse(question, context, intent = 'GENERAL', shelterInfo = null, safetyMessage = null) {
+        const shelterSummary = shelterInfo
+            ? `Nearest shelter: ${shelterInfo.name} (${shelterInfo.distance_km} km away${shelterInfo.address ? `, ${shelterInfo.address}` : ''}).`
+            : 'Shelter data is not available in this chat request, so do not invent a shelter.';
 
-Your role is to help citizens understand disaster risks and stay safe during emergencies.
+        const systemPrompt = `You are the Smart City Lipa Emergency Advisor for Lipa City, Philippines.
 
-CRITICAL SAFETY RULES:
-1. If Flood Risk OR Ashfall Risk is HIGH or VERY HIGH, the area is NOT SAFE
-2. NEVER describe an area as safe when any risk is HIGH
-3. Always prioritize safety over reassurance
-4. Be direct and honest about dangers
-5. Consider wind direction when explaining ashfall risk
+Answer the user's actual question first. Use the current hazard context to make the response accurate and safe without replacing unrelated questions with a generic warning.
 
-RESPONSE STYLE:
-- Maximum 2 short sentences only
-- Each sentence must be short and direct
-- Natural and conversational tone (sound human)
-- No symbols, no formatting, no deep words
-- Just a clear answer
-- Do NOT explain too much
-- Do NOT repeat ideas
-- Keep it concise and straight to the point
+Safety rules:
+- Never claim an area is safe when flood risk or ashfall risk is HIGH or VERY HIGH.
+- Do not invent shelters, routes, incidents, distances, or evacuation orders.
+- If information is unavailable, say it is unavailable.
+- If the situation is dangerous, clearly state that the danger is real, but do not let warnings replace the actual question.
+- Keep the answer concise, natural, and conversational.
 
-Your response MUST be no more than 2 short sentences.`;
+Response style:
+- Usually 2 to 4 short sentences.
+- Use short bullets if a list is clearer.
+- Do not repeat the same warning in every response.
+- Answer the user's question before adding relevant safety context.
+- If the user asks a greeting or general question, respond naturally unless a serious immediate warning is necessary.`;
 
-        // Build user prompt with context (matching old app.py format)
-        const userPrompt = `Use the data to give a short, clear, and natural answer.
-
+        const userPrompt = `Intent: ${intent}
+Question: ${question}
 Flood Risk: ${context.flood_risk}
 Ashfall Risk: ${context.ashfall_risk}
 Wind Direction: ${context.wind_direction}
+Wind Speed: ${context.wind_speed}
+Barangay: ${context.barangay_name}
 Location: ${context.barangay_name}
+Available Shelter Info: ${shelterSummary}
+Safety Context: ${safetyMessage || 'No immediate high-risk override needed.'}
 
-Guidelines:
-- If Flood Risk OR Ashfall Risk is High or Very High, the area is NOT SAFE
-- Never describe the area as safe if any risk is High
-- Always prioritize safety over reassurance
-- If mixed risks, mention the highest risk clearly
-- Consider wind when explaining ashfall
-
-Style:
-- Sound natural and human
-- No symbols, no formatting - Just a clear answer - no deep words
-
-STRICT RULES:
-- Maximum of 2 sentences only
-- Each sentence must be short and direct
-- Do NOT explain too much
-- Do NOT repeat ideas
-- Keep it concise and straight to the point
-
-Your response MUST be no more than 2 short sentences.
-
-Question: ${question}`;
+Instructions:
+- Answer the user's actual question first.
+- Keep it concise and conversational.
+- If the question is about shelter, answer the shelter question first; if shelter data is unavailable, say that shelter information is available through the map or shelter features instead of inventing it.
+- If the question is about hazards or safety, summarize the relevant risk clearly.
+- If the question is about flood or ashfall risk, explain the concept and current context without repeating the same generic emergency warning.
+- If the danger is serious, include a brief safety note after the answer.
+- Do not claim the area is safe when the risk is high.
+- Do not invent incidents, routes, or distances.
+- Do not repeat the same warning multiple times.`;
 
         const messages = [
             {
@@ -134,11 +167,10 @@ Question: ${question}`;
             }
         ];
 
-        // Call Groq API with same settings as old app.py
         const reply = await aiService.callGroqAPI(messages, {
-            model: 'llama-3.1-8b-instant', // Same model as old app.py
+            model: 'llama-3.1-8b-instant',
             temperature: 0.7,
-            max_tokens: 150 // Limit response length to enforce 2 sentences
+            max_tokens: 220
         });
 
         return reply.trim();
