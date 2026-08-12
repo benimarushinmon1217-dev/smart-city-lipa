@@ -124,6 +124,9 @@ dist/
 # Gatsby
 .cache/
 public/
+!frontend/public/
+!frontend/public/images/
+!frontend/public/images/**
 
 # Vuepress
 .vuepress/dist
