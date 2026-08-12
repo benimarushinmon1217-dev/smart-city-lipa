@@ -76,6 +76,17 @@ exports.deactivateUser = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @route   DELETE /api/v1/admin/users/:id
+ * @desc    Delete user account permanently
+ * @access  Private/Admin
+ */
+exports.deleteUser = asyncHandler(async (req, res) => {
+    const result = await adminService.deleteUser(req.params.id, req.user.id);
+
+    ApiResponse.success(res, result, 'User deleted successfully');
+});
+
+/**
  * @route   GET /api/v1/admin/incidents
  * @desc    Get all incidents with filters
  * @access  Private/Admin/Staff

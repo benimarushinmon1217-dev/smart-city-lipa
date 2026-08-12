@@ -32,6 +32,7 @@ router.get('/users', authorize('admin'), getUsersQueryValidator, validate, admin
 router.put('/users/:id', authorize('admin'), updateUserValidator, validate, adminController.updateUser);
 router.put('/users/:id/activate', authorize('admin'), adminController.activateUser);
 router.put('/users/:id/deactivate', authorize('admin'), adminController.deactivateUser);
+router.delete('/users/:id', authorize('admin'), adminController.deleteUser);
 
 // Incident Management (Admin & Staff)
 router.get('/incidents', authorize('admin', 'staff'), getIncidentsQueryValidator, validate, adminController.getIncidents);

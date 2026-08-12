@@ -237,6 +237,76 @@ class AdminService {
     }
 
     /**
+     * Delete user - handles all related data cleanup
+     */
+    async deleteUser(userId, requestingAdminId) {
+        const transaction = await sequelize.transaction();
+
+        try {
+            const user = await User.findByPk(userId);
+
+            if (!user) {
+                throw new Error('User not found');
+            }
+
+            // Prevent admin from deleting their own account
+            if (userId === requestingAdminId) {
+                throw new Error('You cannot delete your own account');
+            }
+
+            // Clean up related data before deleting user
+            // Delete notifications belonging to this user
+            await Notification.destroy({
+                where: { user_id: userId },
+                transaction
+            });
+
+            // Set creator to NULL for announcements created by this user
+            await Announcement.update(
+                { created_by: null },
+                { where: { created_by: userId }, transaction }
+            );
+
+            // Set reported_by to NULL for incidents reported by this user
+            await Incident.update(
+                { reported_by: null },
+                { where: { reported_by: userId }, transaction }
+            );
+
+            // Set verified_by to NULL for incidents verified by this user
+            await Incident.update(
+                { verified_by: null },
+                { where: { verified_by: userId }, transaction }
+            );
+
+            // Set user_id to NULL for reports created by this user
+            await Report.update(
+                { user_id: null },
+                { where: { user_id: userId }, transaction }
+            );
+
+            // Set assigned_to to NULL for reports assigned to this user
+            await Report.update(
+                { assigned_to: null },
+                { where: { assigned_to: userId }, transaction }
+            );
+
+            // Delete the user
+            await user.destroy({ transaction });
+
+            await transaction.commit();
+
+            logger.info(`User ${userId} deleted by admin ${requestingAdminId}`);
+
+            return { message: 'User deleted successfully', userId };
+        } catch (error) {
+            await transaction.rollback();
+            logger.error('Failed to delete user:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Get all incidents with filters
      */
     async getIncidents(options = {}) {
