@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom';
 import { Bell, X, Check, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNotifications } from '../../hooks/useNotifications';
-import { useSocket } from '../../hooks/useSocket';
 import { Badge, Button, Spinner } from '../common';
 
 const NotificationBell = () => {
@@ -25,8 +24,6 @@ const NotificationBell = () => {
         clearAll,
     } = useNotifications();
 
-    const { on, off } = useSocket();
-
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -38,17 +35,6 @@ const NotificationBell = () => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
-    // Real-time notification updates
-    useEffect(() => {
-        on('notification:new', () => {
-            // Notifications are automatically refetched by the hook
-        });
-
-        return () => {
-            off('notification:new');
-        };
-    }, [on, off]);
 
     const handleNotificationClick = (notification) => {
         if (!notification.read) {

@@ -26,9 +26,38 @@ export const useSocketEvents = () => {
             console.log('🔌 [SOCKET EVENTS] Registering event listeners...');
 
             // Notification events
-            socketService.on('notification:new', (notification) => {
-                console.log('🔔 [SOCKET EVENTS] notification:new received:', notification);
+            socketService.on('notification:new', (data) => {
+                console.log('🔔 [SOCKET EVENTS] notification:new received:', data);
+
+                const notification = data?.notification || data;
                 addNotification(notification);
+
+                // Keep the notification panel in sync without waiting for a refetch.
+                queryClient.setQueryData(['notifications'], (current) => {
+                    if (!current?.data || current.data.some(item => item.id === notification.id)) {
+                        return current;
+                    }
+
+                    return {
+                        ...current,
+                        data: [notification, ...current.data],
+                        pagination: current.pagination
+                            ? { ...current.pagination, total: current.pagination.total + 1 }
+                            : current.pagination,
+                    };
+                });
+
+                queryClient.setQueryData(['notifications', 'unread-count'], (current) => {
+                    if (!current?.data) return current;
+
+                    return {
+                        ...current,
+                        data: {
+                            ...current.data,
+                            count: current.data.count + (notification.is_read ? 0 : 1),
+                        },
+                    };
+                });
 
                 // Don't show toast here - toasts are already shown by specific event handlers
                 // This prevents duplicate notifications
