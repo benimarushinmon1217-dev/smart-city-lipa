@@ -4,18 +4,23 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { Bell, X, Check, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNotifications } from '../../hooks/useNotifications';
 import { Badge, Button, Spinner } from '../common';
 
 const getNotificationTimestamp = (notification) => {
-    const timestamp = notification.created_at || notification.createdAt || notification.timestamp;
-    const date = timestamp ? new Date(timestamp) : null;
+    try {
+        const timestamp = notification?.created_at || notification?.createdAt || notification?.timestamp;
+        const date = timestamp ? new Date(timestamp) : null;
 
-    return date && !Number.isNaN(date.getTime())
-        ? formatDistanceToNow(date, { addSuffix: true })
-        : 'Just now';
+        if (!date || Number.isNaN(date.getTime())) return 'Just now';
+
+        return formatDistanceToNow(date, { addSuffix: true });
+    } catch {
+        return 'Just now';
+    }
 };
 
 const isUnread = (notification) => notification.is_read === false || notification.read === false;
