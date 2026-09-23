@@ -3,7 +3,7 @@
  * Centralized emergency operations dashboard
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Badge, Button, Spinner } from '../../components/common';
 import {
@@ -29,7 +29,6 @@ import HazardStatistics from '../../components/admin/HazardStatistics';
 import { formatDistanceToNow } from 'date-fns';
 
 const AdminDashboard = () => {
-    const [realtimeStats, setRealtimeStats] = useState(null);
     const { useDashboardStats } = useAdmin();
     const { data: statsData, isLoading, refetch } = useDashboardStats();
     const { on, off, connect } = useSocket();
@@ -41,10 +40,7 @@ const AdminDashboard = () => {
         connect();
 
         // Real-time statistics updates
-        on('stats:updated', (data) => {
-            setRealtimeStats(data);
-            refetch();
-        });
+        on('stats:updated', () => refetch());
 
         // Incident updates
         on('incident:new', () => refetch());
@@ -74,6 +70,7 @@ const AdminDashboard = () => {
             off('incident:new');
             off('report:new');
             off('alert:emergency');
+            off('stats:updated');
         };
     }, [on, off, connect, refetch]);
 
@@ -85,17 +82,18 @@ const AdminDashboard = () => {
         );
     }
 
-    const displayStats = realtimeStats || stats;
+    const displayStats = stats;
+    const incidentStats = displayStats.incidents || {};
+    const reportStats = displayStats.reports || {};
+    const establishmentStats = displayStats.establishments || {};
 
     // Calculate critical metrics
-    const criticalIncidents = displayStats.incidents?.filter(
-        i => i.severity === 'critical' || i.severity === 'high'
-    ).length || 0;
+    const criticalIncidents = incidentStats.critical || 0;
 
-    const activeAlerts = displayStats.activeAlerts || 0;
-    const pendingReports = displayStats.pendingReports || 0;
-    const evacuatingUsers = displayStats.evacuatingUsers || 0;
-    const sheltersNearCapacity = displayStats.sheltersNearCapacity || 0;
+    const activeAlerts = displayStats.announcements?.active || 0;
+    const pendingReports = reportStats.pending || 0;
+    const evacuatingUsers = displayStats.evacuation?.activeUsers || 0;
+    const sheltersNearCapacity = establishmentStats.nearCapacity || 0;
 
     return (
         <div className="space-y-6">
@@ -143,7 +141,7 @@ const AdminDashboard = () => {
                                 {criticalIncidents}
                             </p>
                             <p className="mt-2 text-xs text-gray-500">
-                                {displayStats.totalIncidents || 0} total active
+                                {incidentStats.active || 0} total active
                             </p>
                         </div>
                     </div>
@@ -225,10 +223,10 @@ const AdminDashboard = () => {
                         <div className="mt-4">
                             <p className="text-sm font-medium text-gray-600">Shelters</p>
                             <p className="mt-2 text-3xl font-bold text-green-600">
-                                {displayStats.totalShelters || 0}
+                                {establishmentStats.evacuationCenters || 0}
                             </p>
                             <p className="mt-2 text-xs text-gray-500">
-                                {displayStats.availableShelters || 0} available
+                                {establishmentStats.availableEvacuationCenters || 0} available
                             </p>
                         </div>
                     </div>

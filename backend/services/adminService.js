@@ -19,6 +19,8 @@ class AdminService {
                 totalUsers,
                 activeUsers,
                 totalIncidents,
+                activeIncidents,
+                criticalIncidents,
                 pendingIncidents,
                 verifiedIncidents,
                 totalReports,
@@ -26,11 +28,20 @@ class AdminService {
                 totalBarangays,
                 highRiskBarangays,
                 totalEstablishments,
+                evacuationCenters,
+                availableEvacuationCenters,
                 activeAnnouncements
             ] = await Promise.all([
                 User.count(),
                 User.count({ where: { is_active: true } }),
                 Incident.count(),
+                Incident.count({ where: { status: { [Op.notIn]: ['resolved', 'closed'] } } }),
+                Incident.count({
+                    where: {
+                        severity: { [Op.in]: ['critical', 'high'] },
+                        status: { [Op.notIn]: ['resolved', 'closed'] }
+                    }
+                }),
                 Incident.count({ where: { status: 'reported' } }),
                 Incident.count({ where: { is_verified: true } }),
                 Report.count(),
@@ -38,6 +49,8 @@ class AdminService {
                 Barangay.count(),
                 Barangay.count({ where: { flood_risk_level: 'High' } }),
                 Establishment.count(),
+                Establishment.count({ where: { type: 'evacuation' } }),
+                Establishment.count({ where: { type: 'evacuation', is_operational: true } }),
                 Announcement.count({ where: { is_active: true } })
             ]);
 
@@ -77,6 +90,8 @@ class AdminService {
                 },
                 incidents: {
                     total: totalIncidents,
+                    active: activeIncidents,
+                    critical: criticalIncidents,
                     pending: pendingIncidents,
                     verified: verifiedIncidents,
                     bySeverity: incidentsBySeverity,
@@ -93,7 +108,9 @@ class AdminService {
                     highRisk: highRiskBarangays
                 },
                 establishments: {
-                    total: totalEstablishments
+                    total: totalEstablishments,
+                    evacuationCenters,
+                    availableEvacuationCenters
                 },
                 announcements: {
                     active: activeAnnouncements
