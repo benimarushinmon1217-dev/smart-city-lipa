@@ -359,7 +359,16 @@ const MapContainer = ({
                 {/* Facility Markers (Schools, Hospitals, Churches, etc.) */}
                 {activeFilters.facilities && (
                     <FacilityMarkers
-                        showTypes={['school', 'church', 'government', 'hospital', 'clinic']}
+                        showTypes={[
+                            'school',
+                            'church',
+                            'government',
+                            'hospital',
+                            'clinic',
+                            'fire_station',
+                            'barangay_hall',
+                            'other',
+                        ]}
                     />
                 )}
 

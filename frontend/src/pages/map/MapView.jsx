@@ -5,15 +5,30 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import MapContainer from '../../components/map/MapContainer';
 import { Card, Button, Badge } from '../../components/common';
 import { Plus, Filter } from 'lucide-react';
 import { useIncidents } from '../../hooks/useIncidents';
+import { api } from '../../services/api';
+import { API_ENDPOINTS } from '../../config/api.config';
 
 const MapView = () => {
     const navigate = useNavigate();
     const [selectedIncident, setSelectedIncident] = useState(null);
     const { incidents } = useIncidents({});
+    const { data: establishmentsData } = useQuery({
+        queryKey: ['map-establishments'],
+        queryFn: async () => {
+            const response = await api.get(API_ENDPOINTS.ESTABLISHMENTS.LIST);
+            return response.data;
+        },
+    });
+
+    const establishments = establishmentsData?.establishments || [];
+    const evacuationCenters = establishments.filter(
+        (establishment) => establishment.type === 'evacuation'
+    );
 
     const handleIncidentClick = (incident) => {
         setSelectedIncident(incident);
@@ -78,6 +93,17 @@ const MapView = () => {
                         <p className="text-sm text-gray-600">Resolved Today</p>
                         <p className="text-2xl font-bold text-success-600 mt-2">
                             {incidents?.filter(i => i.status === 'resolved').length || 0}
+                        </p>
+                    </div>
+                </Card>
+                <Card padding={false}>
+                    <div className="p-5">
+                        <p className="text-sm text-gray-600">Shelter Facilities</p>
+                        <p className="text-2xl font-bold text-success-600 mt-2">
+                            {establishments.length}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                            {evacuationCenters.length} evacuation centers mapped
                         </p>
                     </div>
                 </Card>

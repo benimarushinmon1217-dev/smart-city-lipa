@@ -11,7 +11,7 @@ import { api } from '../../services/api';
 import { API_ENDPOINTS } from '../../config/api.config';
 import { useSocket } from '../../hooks/useSocket';
 import { Badge, Button } from '../common';
-import { School, Church, Building2, Activity, MapPin, Phone, Cross } from 'lucide-react';
+import { School, Church, Building2, Activity, MapPin, Phone, Cross, Flame, Home } from 'lucide-react';
 
 // Icon mapping for different facility types
 const FACILITY_ICONS = {
@@ -21,6 +21,9 @@ const FACILITY_ICONS = {
     hospital: { emoji: '🏥', color: '#ef4444', icon: Cross },
     clinic: { emoji: '🏥', color: '#f59e0b', icon: Activity },
     evacuation: { emoji: '🏠', color: '#22c55e', icon: Building2 },
+    fire_station: { emoji: '🚒', color: '#dc2626', icon: Flame },
+    barangay_hall: { emoji: '🏛️', color: '#0f766e', icon: Home },
+    other: { emoji: '📍', color: '#64748b', icon: MapPin },
 };
 
 // Create custom icon for each facility type
@@ -81,11 +84,23 @@ const formatType = (type) => {
         hospital: 'Hospital',
         clinic: 'Health Center',
         evacuation: 'Evacuation Center',
+        fire_station: 'Fire Station',
+        barangay_hall: 'Barangay Hall',
+        other: 'Other Facility',
     };
     return typeMap[type] || type;
 };
 
-const FacilityMarkers = ({ showTypes = ['school', 'church', 'government', 'hospital', 'clinic'] }) => {
+const FacilityMarkers = ({ showTypes = [
+    'school',
+    'church',
+    'government',
+    'hospital',
+    'clinic',
+    'fire_station',
+    'barangay_hall',
+    'other',
+] }) => {
     const { on, off } = useSocket();
 
     // Fetch all establishments
