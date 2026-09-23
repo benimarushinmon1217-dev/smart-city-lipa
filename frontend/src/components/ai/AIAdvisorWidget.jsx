@@ -12,7 +12,9 @@ import {
     Maximize2,
     Volume2,
     VolumeX,
-    Sparkles
+    Sparkles,
+    ChevronDown,
+    ChevronUp
 } from 'lucide-react';
 import { Button, Badge, Spinner } from '../common';
 import {
@@ -28,6 +30,7 @@ import { formatDistanceToNow } from 'date-fns';
 const AIAdvisorWidget = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
+    const [areAdvisoriesExpanded, setAreAdvisoriesExpanded] = useState(false);
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([]);
 
@@ -265,12 +268,29 @@ const AIAdvisorWidget = () => {
                     {!isMinimized && (
                         <>
                             {/* Advisories Section */}
-                            <div className="h-40 flex-shrink-0 overflow-y-auto p-4 bg-gray-50 border-b border-gray-200">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h4 className="text-sm font-semibold text-gray-900">
-                                        Active Advisories
-                                    </h4>
-                                    {advisories.length > 0 && (
+                            <div className={`flex-shrink-0 overflow-y-auto bg-gray-50 border-b border-gray-200 ${areAdvisoriesExpanded ? 'max-h-40 p-4' : 'p-3'}`}>
+                                <div className="flex items-center justify-between">
+                                    <button
+                                        type="button"
+                                        onClick={() => setAreAdvisoriesExpanded(!areAdvisoriesExpanded)}
+                                        className="flex min-w-0 items-center gap-2 text-left text-sm font-semibold text-gray-900"
+                                        aria-expanded={areAdvisoriesExpanded}
+                                    >
+                                        {areAdvisoriesExpanded ? (
+                                            <ChevronUp className="h-4 w-4 flex-shrink-0" />
+                                        ) : (
+                                            <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                                        )}
+                                        <span>
+                                            Active Advisories
+                                        </span>
+                                        {advisories.length > 0 && (
+                                            <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600">
+                                                {advisories.length}
+                                            </span>
+                                        )}
+                                    </button>
+                                    {areAdvisoriesExpanded && advisories.length > 0 && (
                                         <button
                                             onClick={clearAdvisories}
                                             className="text-xs text-gray-600 hover:text-gray-900"
@@ -280,7 +300,7 @@ const AIAdvisorWidget = () => {
                                     )}
                                 </div>
 
-                                {advisories.length === 0 ? (
+                                {areAdvisoriesExpanded && advisories.length === 0 ? (
                                     <div className="text-center py-6">
                                         <Sparkles className="h-8 w-8 text-gray-300 mx-auto mb-2" />
                                         <p className="text-sm text-gray-500">No active advisories</p>
@@ -288,7 +308,7 @@ const AIAdvisorWidget = () => {
                                             I'll notify you of any hazards
                                         </p>
                                     </div>
-                                ) : (
+                                ) : areAdvisoriesExpanded ? (
                                     <div className="space-y-2">
                                         {advisories.map((advisory) => (
                                             <div
@@ -332,7 +352,7 @@ const AIAdvisorWidget = () => {
                                             </div>
                                         ))}
                                     </div>
-                                )}
+                                ) : null}
                             </div>
 
                             {/* Chat Section */}
