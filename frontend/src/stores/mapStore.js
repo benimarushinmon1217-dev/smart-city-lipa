@@ -10,6 +10,10 @@ export const useMapStore = create((set) => ({
     userLocation: null,
     setUserLocation: (location) => set({ userLocation: location }),
 
+    // Barangay resolved from the user's coordinates, independent of map selection
+    locationBarangay: null,
+    setLocationBarangay: (barangay) => set({ locationBarangay: barangay }),
+
     // Selected barangay
     selectedBarangay: null,
     setSelectedBarangay: (barangay) => set({ selectedBarangay: barangay }),
@@ -50,6 +54,7 @@ export const useMapStore = create((set) => ({
     // Reset all state
     reset: () => set({
         userLocation: null,
+        locationBarangay: null,
         selectedBarangay: null,
         windDirection: 90,
         windSpeed: 20,

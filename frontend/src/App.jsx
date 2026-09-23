@@ -65,6 +65,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AIAdvisorWidget from './components/ai/AIAdvisorWidget';
 import ErrorBoundary from './components/ErrorBoundary';
 import GlobalEmergencyAlert from './components/GlobalEmergencyAlert';
+import LocationPermissionPrompt from './components/location/LocationPermissionPrompt';
 import NotFound from './pages/NotFound';
 
 // Create React Query client
@@ -203,6 +204,8 @@ function AppContent() {
 
       {/* AI Advisor Widget - Available when authenticated */}
       {isAuthenticated && <AIAdvisorWidget />}
+
+      {isAuthenticated && <LocationPermissionPrompt />}
 
       {/* Global Emergency Alert - Available when authenticated */}
       {isAuthenticated && <GlobalEmergencyAlert />}

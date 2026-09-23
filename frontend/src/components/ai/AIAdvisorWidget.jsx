@@ -35,7 +35,7 @@ const AIAdvisorWidget = () => {
     const [chatHistory, setChatHistory] = useState([]);
 
     // Get map data for hazard context
-    const { selectedBarangay, userLocation, windDirection, windSpeed } = useMapStore();
+    const { selectedBarangay, locationBarangay, userLocation, windDirection, windSpeed } = useMapStore();
 
     const {
         advisories,
@@ -49,6 +49,8 @@ const AIAdvisorWidget = () => {
     const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!message.trim() || isAsking) return;
+
+        const activeBarangay = selectedBarangay || locationBarangay;
 
         const userMessage = {
             id: Date.now(),
@@ -73,11 +75,11 @@ const AIAdvisorWidget = () => {
 
         // Calculate ashfall risk based on current wind direction
         const getAshfallRisk = () => {
-            if (!selectedBarangay || !windDirection) return 'unknown';
+            if (!activeBarangay || !windDirection) return 'unknown';
 
             try {
                 // Get barangay center coordinates from GeoJSON
-                const barangayProps = selectedBarangay.properties || {};
+                const barangayProps = activeBarangay.properties || {};
 
                 // Try to get coordinates from various possible fields
                 let lat = barangayProps.latitude || barangayProps.lat;
@@ -85,9 +87,9 @@ const AIAdvisorWidget = () => {
 
                 // If not in properties, try to calculate from geometry
                 if (!lat || !lng) {
-                    if (selectedBarangay.geometry && selectedBarangay.geometry.type === 'Polygon') {
+                    if (activeBarangay.geometry && activeBarangay.geometry.type === 'Polygon') {
                         // Get first coordinate as approximation
-                        const coords = selectedBarangay.geometry.coordinates[0][0];
+                        const coords = activeBarangay.geometry.coordinates[0][0];
                         lng = coords[0];
                         lat = coords[1];
                     } else if (userLocation) {
@@ -111,7 +113,7 @@ const AIAdvisorWidget = () => {
         };
 
         // Extract properties from GeoJSON feature
-        const barangayProps = selectedBarangay?.properties || {};
+        const barangayProps = activeBarangay?.properties || {};
 
         // Build comprehensive hazard data context
         const hazardData = {
@@ -139,7 +141,7 @@ const AIAdvisorWidget = () => {
         };
 
         console.log('=== AI ADVISOR DEBUG ===');
-        console.log('Selected Barangay:', selectedBarangay);
+        console.log('Selected Barangay:', activeBarangay);
         console.log('Barangay Properties:', barangayProps);
         console.log('User Location:', userLocation);
         console.log('Wind Direction:', windDirection);
