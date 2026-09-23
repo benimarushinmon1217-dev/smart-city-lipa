@@ -33,7 +33,8 @@ const AdminDashboard = () => {
     const { data: statsData, isLoading, refetch } = useDashboardStats();
     const { on, off, connect } = useSocket();
 
-    const stats = statsData?.data || {};
+    const statsResponse = statsData?.data || statsData || {};
+    const stats = statsResponse.stats || statsResponse;
 
     // Connect to Socket.io for real-time updates
     useEffect(() => {
@@ -86,14 +87,23 @@ const AdminDashboard = () => {
     const incidentStats = displayStats.incidents || {};
     const reportStats = displayStats.reports || {};
     const establishmentStats = displayStats.establishments || {};
+    const severityRows = Array.isArray(incidentStats.bySeverity) ? incidentStats.bySeverity : [];
+    const countSeverity = (severity) => severityRows.reduce((total, row) => {
+        const values = row.dataValues || row;
+        return total + (values.severity === severity ? Number(values.count) || 0 : 0);
+    }, 0);
 
     // Calculate critical metrics
-    const criticalIncidents = incidentStats.critical || 0;
+    const criticalIncidents = incidentStats.critical ??
+        countSeverity('critical') + countSeverity('high');
 
-    const activeAlerts = displayStats.announcements?.active || 0;
-    const pendingReports = reportStats.pending || 0;
+    const activeAlerts = displayStats.announcements?.active ?? displayStats.activeAlerts ?? 0;
+    const pendingReports = reportStats.pending ?? displayStats.pendingReports ?? 0;
     const evacuatingUsers = displayStats.evacuation?.activeUsers || 0;
     const sheltersNearCapacity = establishmentStats.nearCapacity || 0;
+    const activeIncidents = incidentStats.active ?? incidentStats.total ?? displayStats.totalIncidents ?? 0;
+    const totalShelters = establishmentStats.evacuationCenters ?? displayStats.totalShelters ?? 0;
+    const availableShelters = establishmentStats.availableEvacuationCenters ?? displayStats.availableShelters ?? 0;
 
     return (
         <div className="space-y-6">
@@ -141,7 +151,7 @@ const AdminDashboard = () => {
                                 {criticalIncidents}
                             </p>
                             <p className="mt-2 text-xs text-gray-500">
-                                {incidentStats.active || 0} total active
+                                {activeIncidents} total active
                             </p>
                         </div>
                     </div>
@@ -223,10 +233,10 @@ const AdminDashboard = () => {
                         <div className="mt-4">
                             <p className="text-sm font-medium text-gray-600">Shelters</p>
                             <p className="mt-2 text-3xl font-bold text-green-600">
-                                {establishmentStats.evacuationCenters || 0}
+                                {totalShelters}
                             </p>
                             <p className="mt-2 text-xs text-gray-500">
-                                {establishmentStats.availableEvacuationCenters || 0} available
+                                {availableShelters} available
                             </p>
                         </div>
                     </div>
