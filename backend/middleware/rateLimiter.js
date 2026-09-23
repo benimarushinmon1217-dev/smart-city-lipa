@@ -17,7 +17,8 @@ const getRateLimitKey = (req) => {
     return `ip:${req.ip}`;
 };
 
-// General API rate limiter
+// Limit anonymous traffic. Protected routes enforce JWT authentication separately,
+// so authenticated users must not share the public IP/request bucket.
 const apiLimiter = rateLimit({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 500,
@@ -25,7 +26,8 @@ const apiLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     keyGenerator: getRateLimitKey,
-    skip: (req) => req.method === 'OPTIONS',
+    skip: (req) => req.method === 'OPTIONS' ||
+        req.get('authorization')?.startsWith('Bearer '),
     handler: (req, res) => {
         ApiResponse.error(res, 'Too many requests, please try again later', 429);
     }
