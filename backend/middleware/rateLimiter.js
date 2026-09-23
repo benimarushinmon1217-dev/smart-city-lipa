@@ -4,7 +4,18 @@
  */
 
 const rateLimit = require('express-rate-limit');
+const crypto = require('crypto');
 const ApiResponse = require('../utils/response');
+
+const getRateLimitKey = (req) => {
+    const authorization = req.get('authorization');
+
+    if (authorization) {
+        return `auth:${crypto.createHash('sha256').update(authorization).digest('hex')}`;
+    }
+
+    return `ip:${req.ip}`;
+};
 
 // General API rate limiter
 const apiLimiter = rateLimit({
@@ -13,6 +24,8 @@ const apiLimiter = rateLimit({
     message: 'Too many requests from this IP, please try again later',
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: getRateLimitKey,
+    skip: (req) => req.method === 'OPTIONS',
     handler: (req, res) => {
         ApiResponse.error(res, 'Too many requests, please try again later', 429);
     }
