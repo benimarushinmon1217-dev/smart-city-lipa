@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { Bell, X, Check, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNotifications } from '../../hooks/useNotifications';
+import { useNotificationStore } from '../../stores/notificationStore';
 import { Badge, Button, Spinner } from '../common';
 
 const getNotificationTimestamp = (notification) => {
@@ -28,6 +29,8 @@ const isUnread = (notification) => notification.is_read === false || notificatio
 const NotificationBell = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const [showNewNotification, setShowNewNotification] = useState(false);
+    const { lastNotificationId, clearLastNotification } = useNotificationStore();
 
     const {
         notifications,
@@ -39,6 +42,18 @@ const NotificationBell = () => {
         deleteNotification,
         clearAll,
     } = useNotifications();
+
+    useEffect(() => {
+        if (!lastNotificationId) return undefined;
+
+        setShowNewNotification(true);
+        const timer = setTimeout(() => {
+            setShowNewNotification(false);
+            clearLastNotification();
+        }, 5000);
+
+        return () => clearTimeout(timer);
+    }, [lastNotificationId, clearLastNotification]);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -109,10 +124,14 @@ const NotificationBell = () => {
                     if (willOpen) refetch();
                 }}
                 className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : 'Notifications'}
             >
                 <Bell className="h-6 w-6" />
+                {showNewNotification && (
+                    <span className="absolute top-0 right-0 h-3 w-3 translate-x-1/3 -translate-y-1/3 rounded-full bg-danger-600 ring-2 ring-white animate-ping" />
+                )}
                 {unreadCount > 0 && (
-                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-danger-600 rounded-full">
+                    <span className={`absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-danger-600 rounded-full ${showNewNotification ? 'animate-bounce' : ''}`}>
                         {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                 )}

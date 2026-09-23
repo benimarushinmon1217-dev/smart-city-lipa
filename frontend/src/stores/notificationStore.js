@@ -9,6 +9,7 @@ const useNotificationStore = create((set, get) => ({
     // State
     notifications: [],
     unreadCount: 0,
+    lastNotificationId: null,
     isLoading: false,
 
     // Actions
@@ -18,8 +19,11 @@ const useNotificationStore = create((set, get) => ({
         set((state) => ({
             notifications: [notification, ...state.notifications],
             unreadCount: state.unreadCount + 1,
+            lastNotificationId: notification.id,
         }));
     },
+
+    clearLastNotification: () => set({ lastNotificationId: null }),
 
     markAsRead: (notificationId) => {
         set((state) => ({
