@@ -109,7 +109,7 @@ const AdminDashboard = () => {
     const evacuatingUsers = displayStats.evacuation?.activeUsers || 0;
     const sheltersNearCapacity = establishmentStats.nearCapacity || 0;
     const activeIncidents = incidentStats.active ?? incidentStats.total ?? displayStats.totalIncidents ?? 0;
-    const totalShelters = establishmentStats.evacuationCenters ?? displayStats.totalShelters ?? 0;
+    const totalShelters = establishmentStats.total ?? displayStats.totalShelters ?? 0;
     const availableShelters = establishmentStats.availableEvacuationCenters ?? displayStats.availableShelters ?? 0;
 
     return (
@@ -243,7 +243,7 @@ const AdminDashboard = () => {
                                 {totalShelters}
                             </p>
                             <p className="mt-2 text-xs text-gray-500">
-                                {availableShelters} available
+                                {availableShelters} evacuation centers available
                             </p>
                         </div>
                     </div>
