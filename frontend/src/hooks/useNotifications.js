@@ -42,6 +42,7 @@ export const useNotifications = () => {
         },
         enabled: isAuthenticated, // Only run query if authenticated
         refetchInterval: false,
+        staleTime: 5 * 60 * 1000, // Keep notifications fresh for 5 minutes
         retry: false, // Don't retry on 401 errors
     });
 
@@ -61,6 +62,7 @@ export const useNotifications = () => {
         },
         enabled: isAuthenticated, // Only run query if authenticated
         refetchInterval: false,
+        staleTime: 5 * 60 * 1000, // Keep notifications fresh for 5 minutes
         retry: false, // Don't retry on 401 errors
     });
 

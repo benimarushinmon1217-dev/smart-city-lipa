@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <!-- Cloud shape -->
+  <path d="M38 20c0-6.627-5.373-12-12-12-5.274 0-9.758 3.403-11.38 8.14C11.537 16.57 9 19.403 9 22.857c0 3.866 3.134 7 7 7h22c3.866 0 7-3.134 7-7 0-3.454-2.537-6.287-5.62-6.857z" fill="#4A90E2" stroke="#2E5C8A" stroke-width="1.5"/>
+  
+  <!-- Rain drops -->
+  <path d="M18 32v6" stroke="#2E5C8A" stroke-width="2" stroke-linecap="round"/>
+  <path d="M24 34v8" stroke="#2E5C8A" stroke-width="2" stroke-linecap="round"/>
+  <path d="M30 32v6" stroke="#2E5C8A" stroke-width="2" stroke-linecap="round"/>
+  <path d="M36 34v5" stroke="#2E5C8A" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Lightning bolt for disaster theme -->
+  <path d="M26 18l-4 8h4l-2 6 6-10h-4l2-4z" fill="#FFD700" stroke="#FFA500" stroke-width="1"/>
+  
+  <!-- Small wind lines -->
+  <path d="M6 14h4" stroke="#87CEEB" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M4 18h5" stroke="#87CEEB" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M5 22h4" stroke="#87CEEB" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

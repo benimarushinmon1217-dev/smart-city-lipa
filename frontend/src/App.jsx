@@ -73,8 +73,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
+      refetchOnReconnect: 'stale',
       retry: (failureCount, error) => error?.status !== 429 && failureCount < 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 10 * 60 * 1000, // 10 minutes - prevent aggressive refetches
     },
   },
 });

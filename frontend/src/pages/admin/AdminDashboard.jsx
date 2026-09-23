@@ -3,7 +3,7 @@
  * Centralized emergency operations dashboard
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Badge, Button, Spinner } from '../../components/common';
 import {
@@ -29,6 +29,7 @@ import HazardStatistics from '../../components/admin/HazardStatistics';
 import { formatDistanceToNow } from 'date-fns';
 
 const AdminDashboard = () => {
+    const [refetchTimeout, setRefetchTimeout] = useState(null);
     const { useDashboardStats } = useAdmin();
     const { data: statsData, isLoading, refetch } = useDashboardStats();
     const { on, off, connect } = useSocket();
@@ -40,8 +41,15 @@ const AdminDashboard = () => {
     useEffect(() => {
         connect();
 
+        // Debounce socket-triggered refetches to 5 seconds
+        const debouncedRefetch = () => {
+            if (refetchTimeout) clearTimeout(refetchTimeout);
+            const timer = setTimeout(() => refetch(), 5000);
+            setRefetchTimeout(timer);
+        };
+
         // Real-time statistics updates
-        on('stats:updated', () => refetch());
+        on('stats:updated', debouncedRefetch);
 
         // Incident updates
         on('incident:new', () => refetch());
@@ -67,13 +75,13 @@ const AdminDashboard = () => {
         on('alert:emergency', () => refetch());
 
         return () => {
+            if (refetchTimeout) clearTimeout(refetchTimeout);
             off('stats:updated');
             off('incident:new');
             off('report:new');
             off('alert:emergency');
-            off('stats:updated');
         };
-    }, [on, off, connect, refetch]);
+    }, [on, off, connect, refetch, refetchTimeout]);
 
     if (isLoading) {
         return (
