@@ -16,6 +16,9 @@ const logger = require('./utils/logger');
 // Create Express app
 const app = express();
 
+// Render forwards the original client IP through one trusted proxy.
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 
