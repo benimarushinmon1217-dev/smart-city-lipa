@@ -105,7 +105,6 @@ const AdminDashboard = () => {
     const criticalIncidents = incidentStats.critical ??
         countSeverity('critical') + countSeverity('high');
 
-    const activeAlerts = displayStats.announcements?.active ?? displayStats.activeAlerts ?? 0;
     const pendingReports = reportStats.pending ?? displayStats.pendingReports ?? 0;
     const evacuatingUsers = displayStats.evacuation?.activeUsers || 0;
     const sheltersNearCapacity = establishmentStats.nearCapacity || 0;
@@ -165,7 +164,7 @@ const AdminDashboard = () => {
                     </div>
                 </Card>
 
-                {/* Active Alerts */}
+                {/* Active Incidents */}
                 <Card padding={false} className="border-l-4 border-warning-500">
                     <div className="p-4">
                         <div className="flex items-center justify-between">
@@ -174,12 +173,12 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                         <div className="mt-4">
-                            <p className="text-sm font-medium text-gray-600">Active Alerts</p>
+                            <p className="text-sm font-medium text-gray-600">Active Incidents</p>
                             <p className="mt-2 text-3xl font-bold text-warning-600">
-                                {activeAlerts}
+                                {activeIncidents}
                             </p>
                             <p className="mt-2 text-xs text-gray-500">
-                                System-wide notifications
+                                Open incidents in the system
                             </p>
                         </div>
                     </div>
