@@ -213,9 +213,11 @@ const AIAdvisorWidget = () => {
             {isOpen && (
                 <div
                     className={`
-            fixed bottom-6 right-6 z-[1200] bg-white rounded-lg shadow-2xl border border-gray-200
+                        fixed bottom-3 right-3 z-[1200] flex flex-col overflow-hidden bg-white rounded-lg shadow-2xl border border-gray-200
             transition-all duration-300
-            ${isMinimized ? 'w-80 h-16' : 'w-96 h-[600px]'}
+                        ${isMinimized
+                            ? 'w-[calc(100vw-1.5rem)] max-w-80 h-16'
+                            : 'w-[calc(100vw-1.5rem)] max-w-96 h-[min(600px,calc(100dvh-1.5rem))] max-h-[calc(100dvh-1.5rem)]'}
           `}
                 >
                     {/* Header */}
@@ -263,7 +265,7 @@ const AIAdvisorWidget = () => {
                     {!isMinimized && (
                         <>
                             {/* Advisories Section */}
-                            <div className="h-48 overflow-y-auto p-4 bg-gray-50 border-b border-gray-200">
+                            <div className="h-48 flex-shrink-0 overflow-y-auto p-4 bg-gray-50 border-b border-gray-200">
                                 <div className="flex items-center justify-between mb-3">
                                     <h4 className="text-sm font-semibold text-gray-900">
                                         Active Advisories
@@ -334,9 +336,9 @@ const AIAdvisorWidget = () => {
                             </div>
 
                             {/* Chat Section */}
-                            <div className="flex-1 flex flex-col h-[calc(600px-16rem)]">
+                            <div className="flex-1 min-h-0 flex flex-col">
                                 {/* Chat History */}
-                                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                                <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
                                     {chatHistory.length === 0 ? (
                                         <div className="text-center py-8">
                                             <MessageCircle className="h-12 w-12 text-gray-300 mx-auto mb-3" />
@@ -372,7 +374,7 @@ const AIAdvisorWidget = () => {
                                             >
                                                 <div
                                                     className={`
-                            max-w-[80%] rounded-lg px-4 py-2 text-sm
+                            max-w-[80%] min-w-0 rounded-lg px-4 py-2 text-sm whitespace-pre-wrap break-words
                             ${msg.type === 'user'
                                                             ? 'bg-primary-600 text-white'
                                                             : 'bg-gray-100 text-gray-900'
@@ -394,7 +396,7 @@ const AIAdvisorWidget = () => {
                                 </div>
 
                                 {/* Input */}
-                                <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200">
+                                <form onSubmit={handleSendMessage} className="flex-shrink-0 p-4 border-t border-gray-200">
                                     <div className="flex space-x-2">
                                         <input
                                             type="text"
