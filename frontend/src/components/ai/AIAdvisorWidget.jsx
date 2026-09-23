@@ -217,7 +217,7 @@ const AIAdvisorWidget = () => {
             transition-all duration-300
                         ${isMinimized
                             ? 'w-[calc(100vw-1.5rem)] max-w-80 h-16'
-                            : 'w-[calc(100vw-1.5rem)] max-w-96 h-[min(600px,calc(100dvh-1.5rem))] max-h-[calc(100dvh-1.5rem)]'}
+                            : 'w-[calc(100vw-1.5rem)] max-w-[28rem] h-[min(760px,calc(100dvh-1.5rem))] max-h-[calc(100dvh-1.5rem)]'}
           `}
                 >
                     {/* Header */}
@@ -265,7 +265,7 @@ const AIAdvisorWidget = () => {
                     {!isMinimized && (
                         <>
                             {/* Advisories Section */}
-                            <div className="h-48 flex-shrink-0 overflow-y-auto p-4 bg-gray-50 border-b border-gray-200">
+                            <div className="h-40 flex-shrink-0 overflow-y-auto p-4 bg-gray-50 border-b border-gray-200">
                                 <div className="flex items-center justify-between mb-3">
                                     <h4 className="text-sm font-semibold text-gray-900">
                                         Active Advisories
