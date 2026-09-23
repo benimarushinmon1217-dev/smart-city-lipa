@@ -9,6 +9,17 @@ import { formatDistanceToNow } from 'date-fns';
 import { useNotifications } from '../../hooks/useNotifications';
 import { Badge, Button, Spinner } from '../common';
 
+const getNotificationTimestamp = (notification) => {
+    const timestamp = notification.created_at || notification.createdAt || notification.timestamp;
+    const date = timestamp ? new Date(timestamp) : null;
+
+    return date && !Number.isNaN(date.getTime())
+        ? formatDistanceToNow(date, { addSuffix: true })
+        : 'Just now';
+};
+
+const isUnread = (notification) => notification.is_read === false || notification.read === false;
+
 const NotificationBell = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -37,7 +48,7 @@ const NotificationBell = () => {
     }, []);
 
     const handleNotificationClick = (notification) => {
-        if (!notification.is_read) {
+        if (isUnread(notification)) {
             markAsRead(notification.id);
         }
         setIsOpen(false);
@@ -156,7 +167,7 @@ const NotificationBell = () => {
                                         key={notification.id}
                                         className={`
                       p-4 hover:bg-gray-50 transition-colors cursor-pointer
-                        ${!notification.is_read ? 'bg-blue-50' : ''}
+                        ${isUnread(notification) ? 'bg-blue-50' : ''}
                     `}
                                         onClick={() => handleNotificationClick(notification)}
                                     >
@@ -175,7 +186,7 @@ const NotificationBell = () => {
                                             <div className="flex-1 min-w-0">
                                                 <p className={`
                           text-sm font-medium
-                          ${!notification.is_read ? 'text-gray-900' : 'text-gray-700'}
+                          ${isUnread(notification) ? 'text-gray-900' : 'text-gray-700'}
                         `}>
                                                     {notification.title}
                                                 </p>
@@ -183,12 +194,12 @@ const NotificationBell = () => {
                                                     {notification.message}
                                                 </p>
                                                 <p className="text-xs text-gray-500 mt-1">
-                                                    {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                                                    {getNotificationTimestamp(notification)}
                                                 </p>
                                             </div>
 
                                             {/* Unread Indicator */}
-                                            {!notification.is_read && (
+                                            {isUnread(notification) && (
                                                 <div className="flex-shrink-0">
                                                     <div className="w-2 h-2 bg-primary-600 rounded-full" />
                                                 </div>
