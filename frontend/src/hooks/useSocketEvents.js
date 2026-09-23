@@ -34,6 +34,11 @@ export const useSocketEvents = () => {
 
                 // Keep the notification panel in sync without waiting for a refetch.
                 queryClient.setQueryData(['notifications'], (current) => {
+                    if (Array.isArray(current)) {
+                        if (current.some(item => item.id === notification.id)) return current;
+                        return [notification, ...current];
+                    }
+
                     if (!current?.data || current.data.some(item => item.id === notification.id)) {
                         return current;
                     }
@@ -48,6 +53,13 @@ export const useSocketEvents = () => {
                 });
 
                 queryClient.setQueryData(['notifications', 'unread-count'], (current) => {
+                    if (current?.count !== undefined) {
+                        return {
+                            ...current,
+                            count: current.count + (notification.is_read ? 0 : 1),
+                        };
+                    }
+
                     if (!current?.data) return current;
 
                     return {

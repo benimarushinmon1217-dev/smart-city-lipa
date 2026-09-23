@@ -4,7 +4,6 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { Bell, X, Check, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -18,6 +17,7 @@ const NotificationBell = () => {
         notifications,
         unreadCount,
         isLoading,
+        refetch,
         markAsRead,
         markAllAsRead,
         deleteNotification,
@@ -37,7 +37,7 @@ const NotificationBell = () => {
     }, []);
 
     const handleNotificationClick = (notification) => {
-        if (!notification.read) {
+        if (!notification.is_read) {
             markAsRead(notification.id);
         }
         setIsOpen(false);
@@ -87,7 +87,11 @@ const NotificationBell = () => {
         <div className="relative" ref={dropdownRef}>
             {/* Bell Button */}
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                    const willOpen = !isOpen;
+                    setIsOpen(willOpen);
+                    if (willOpen) refetch();
+                }}
                 className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
                 <Bell className="h-6 w-6" />
@@ -152,7 +156,7 @@ const NotificationBell = () => {
                                         key={notification.id}
                                         className={`
                       p-4 hover:bg-gray-50 transition-colors cursor-pointer
-                      ${!notification.read ? 'bg-blue-50' : ''}
+                        ${!notification.is_read ? 'bg-blue-50' : ''}
                     `}
                                         onClick={() => handleNotificationClick(notification)}
                                     >
@@ -171,7 +175,7 @@ const NotificationBell = () => {
                                             <div className="flex-1 min-w-0">
                                                 <p className={`
                           text-sm font-medium
-                          ${!notification.read ? 'text-gray-900' : 'text-gray-700'}
+                          ${!notification.is_read ? 'text-gray-900' : 'text-gray-700'}
                         `}>
                                                     {notification.title}
                                                 </p>
@@ -179,12 +183,12 @@ const NotificationBell = () => {
                                                     {notification.message}
                                                 </p>
                                                 <p className="text-xs text-gray-500 mt-1">
-                                                    {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                                                    {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                                                 </p>
                                             </div>
 
                                             {/* Unread Indicator */}
-                                            {!notification.read && (
+                                            {!notification.is_read && (
                                                 <div className="flex-shrink-0">
                                                     <div className="w-2 h-2 bg-primary-600 rounded-full" />
                                                 </div>
