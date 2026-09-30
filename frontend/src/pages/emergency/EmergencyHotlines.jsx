@@ -90,7 +90,7 @@ const EmergencyHotlines = () => {
     console.log('Has contacts:', hasContacts);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8">
+        <div className="emergency-hotlines min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8">
             <div className="container mx-auto px-4 max-w-4xl">
                 {/* Header */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
@@ -141,7 +141,7 @@ const EmergencyHotlines = () => {
                                     {/* Category Header */}
                                     <button
                                         onClick={() => toggleCategory(category)}
-                                        className="w-full p-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                                        className="emergency-hotlines__category-toggle w-full p-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
                                     >
                                         <div className="flex items-center gap-3">
                                             <span className="text-3xl">{config.icon}</span>
@@ -170,7 +170,7 @@ const EmergencyHotlines = () => {
                                                 return (
                                                     <div
                                                         key={contact.id}
-                                                        className={`p-5 border-b border-gray-100 last:border-b-0 ${colorClasses[config.color]
+                                                        className={`emergency-hotlines__contact p-5 border-b border-gray-100 last:border-b-0 ${colorClasses[config.color]
                                                             } bg-opacity-30`}
                                                     >
                                                         <div className="flex items-start justify-between mb-3">

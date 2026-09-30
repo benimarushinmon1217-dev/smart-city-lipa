@@ -213,3 +213,42 @@ html[data-theme='dark'] ::-webkit-scrollbar-track {
 html[data-theme='dark'] ::-webkit-scrollbar-thumb {
   background: #4b5563;
 }
+
+html[data-theme='dark'] .emergency-hotlines__category-toggle {
+  background-color: #1f2937;
+}
+
+html[data-theme='dark'] .emergency-hotlines__category-toggle:hover,
+html[data-theme='dark'] .emergency-hotlines__category-toggle:focus-visible {
+  background-color: #374151;
+}
+
+html[data-theme='dark'] .emergency-hotlines__category-toggle:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: -2px;
+}
+
+html[data-theme='dark'] .emergency-hotlines__contact {
+  background-color: #273449 !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+html[data-theme='dark'] .emergency-hotlines__contact [class~='text-gray-900'],
+html[data-theme='dark'] .emergency-hotlines__contact [class~='text-gray-800'],
+html[data-theme='dark'] .emergency-hotlines__contact [class~='text-gray-700'] {
+  color: #f3f4f6 !important;
+}
+
+html[data-theme='dark'] .emergency-hotlines__contact [class~='text-gray-600'],
+html[data-theme='dark'] .emergency-hotlines__contact [class~='text-gray-500'] {
+  color: #d1d5db !important;
+}
+
+html[data-theme='dark'] .emergency-hotlines__contact [class~='text-blue-600'] {
+  color: #93c5fd !important;
+}
+
+html[data-theme='dark'] .emergency-hotlines__contact a:hover {
+  color: #bfdbfe !important;
+}
