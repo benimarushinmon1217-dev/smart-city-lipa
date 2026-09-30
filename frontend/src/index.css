@@ -218,6 +218,10 @@ html[data-theme='dark'] .emergency-hotlines__category-toggle {
   background-color: #1f2937;
 }
 
+html[data-theme='dark'] .emergency-hotlines {
+  background-image: linear-gradient(to bottom right, #111827, #0f172a) !important;
+}
+
 html[data-theme='dark'] .emergency-hotlines__category-toggle:hover,
 html[data-theme='dark'] .emergency-hotlines__category-toggle:focus-visible {
   background-color: #374151;
