@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 
 // Stores
 import useAuthStore from './stores/authStore';
+import useUIStore from './stores/uiStore';
 
 // Services
 import socketService from './services/socketService';
@@ -83,9 +84,14 @@ const queryClient = new QueryClient({
 // Wrapper component to use hooks inside QueryClientProvider
 function AppContent() {
   const { isAuthenticated } = useAuthStore();
+  const { theme } = useUIStore();
 
   // Centralized socket event handling - prevents duplicate listeners
   useSocketEvents();
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   // Initialize socket connection when authenticated
   useEffect(() => {

@@ -4,7 +4,7 @@
  */
 
 import { Menu } from '@headlessui/react';
-import { Menu as MenuIcon, User, LogOut, Settings } from 'lucide-react';
+import { Menu as MenuIcon, User, LogOut, Settings, Moon, Sun } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
@@ -14,7 +14,7 @@ import NotificationBell from '../components/notifications/NotificationBell';
 const Navbar = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuthStore();
-    const { toggleSidebar, toggleMobileMenu } = useUIStore();
+    const { toggleSidebar, toggleMobileMenu, theme, toggleTheme } = useUIStore();
 
     const handleLogout = async () => {
         logout();
@@ -52,6 +52,18 @@ const Navbar = () => {
 
                     {/* Right side */}
                     <div className="flex items-center space-x-4">
+                        <button
+                            type="button"
+                            onClick={toggleTheme}
+                            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                            className="p-2 rounded-md text-gray-600 hover:bg-gray-100"
+                        >
+                            {theme === 'dark'
+                                ? <Sun className="h-5 w-5" aria-hidden="true" />
+                                : <Moon className="h-5 w-5" aria-hidden="true" />}
+                        </button>
+
                         {/* Notifications */}
                         <NotificationBell />
 

@@ -88,3 +88,127 @@
 .animate-slide-in {
   animation: slideIn 0.3s ease-out;
 }
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+html[data-theme='dark'] body {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+html[data-theme='dark'] [class~='bg-white'] {
+  background-color: #1f2937 !important;
+}
+
+html[data-theme='dark'] [class~='bg-gray-50'] {
+  background-color: #111827 !important;
+}
+
+html[data-theme='dark'] [class~='bg-gray-100'] {
+  background-color: #1f2937 !important;
+}
+
+html[data-theme='dark'] [class~='bg-gray-200'] {
+  background-color: #374151 !important;
+}
+
+html[data-theme='dark'] [class~='bg-gray-300'] {
+  background-color: #4b5563 !important;
+}
+
+html[data-theme='dark'] [class~='bg-primary-50'],
+html[data-theme='dark'] [class~='bg-blue-50'] {
+  background-color: #1e3a5f !important;
+}
+
+html[data-theme='dark'] [class~='from-primary-50'] {
+  --tw-gradient-from: #111827 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(17 24 39 / 0%) var(--tw-gradient-to-position);
+}
+
+html[data-theme='dark'] [class~='to-primary-100'] {
+  --tw-gradient-to: #1f2937 var(--tw-gradient-to-position);
+}
+
+html[data-theme='dark'] [class~='bg-red-50'],
+html[data-theme='dark'] [class~='bg-danger-50'] {
+  background-color: #451a1a !important;
+}
+
+html[data-theme='dark'] [class~='bg-yellow-50'],
+html[data-theme='dark'] [class~='bg-warning-50'] {
+  background-color: #422006 !important;
+}
+
+html[data-theme='dark'] [class~='bg-green-50'],
+html[data-theme='dark'] [class~='bg-success-50'] {
+  background-color: #123524 !important;
+}
+
+html[data-theme='dark'] [class~='text-gray-900'],
+html[data-theme='dark'] [class~='text-gray-800'],
+html[data-theme='dark'] [class~='text-gray-700'],
+html[data-theme='dark'] [class~='text-black'] {
+  color: #f3f4f6 !important;
+}
+
+html[data-theme='dark'] [class~='text-gray-600'] {
+  color: #d1d5db !important;
+}
+
+html[data-theme='dark'] [class~='text-gray-500'] {
+  color: #9ca3af !important;
+}
+
+html[data-theme='dark'] [class~='text-primary-600'],
+html[data-theme='dark'] [class~='text-blue-600'] {
+  color: #60a5fa !important;
+}
+
+html[data-theme='dark'] [class~='border-gray-100'],
+html[data-theme='dark'] [class~='border-gray-200'] {
+  border-color: #374151 !important;
+}
+
+html[data-theme='dark'] [class~='border-gray-300'] {
+  border-color: #4b5563 !important;
+}
+
+html[data-theme='dark'] [class~='hover:bg-gray-100']:hover,
+html[data-theme='dark'] [class~='hover:bg-gray-200']:hover {
+  background-color: #374151 !important;
+}
+
+html[data-theme='dark'] [class~='hover:bg-primary-50']:hover {
+  background-color: #1e3a5f !important;
+}
+
+html[data-theme='dark'] input,
+html[data-theme='dark'] select,
+html[data-theme='dark'] textarea {
+  color-scheme: dark;
+}
+
+html[data-theme='dark'] .leaflet-popup-content-wrapper,
+html[data-theme='dark'] .leaflet-popup-tip,
+html[data-theme='dark'] .leaflet-control {
+  background-color: #1f2937;
+  color: #f3f4f6;
+}
+
+html[data-theme='dark'] .leaflet-bar a,
+html[data-theme='dark'] .leaflet-bar a:hover {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  border-color: #374151;
+}
+
+html[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+html[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
